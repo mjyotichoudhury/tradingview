@@ -29,7 +29,8 @@ minimum-history gate for new listings.
 The current Delta Exchange India snapshot includes 182 crypto perpetuals,
 including a separate probation tier for recent listings. See
 `docs/crypto_regime_compounder.md` for test evidence, risk profiles, the Delta
-universe, and promotion gates.
+universe, and promotion gates. The latest recorded run is in
+`docs/backtest_2026-07-16.md`.
 
 ### Crypto Cycle Pullback + Smart Hold
 

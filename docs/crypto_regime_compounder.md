@@ -63,10 +63,10 @@ slippage setting. Reproduce every result in TradingView.
 
 | Profile / symbol | Net profit | Max drawdown | Profit factor | Positions | Win rate | Largest winner / gross profit |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| Balanced `BTCUSDT` | 114.0% | 16.2% | 2.86 | 42 | 47.6% | 14.8% |
-| Balanced `ETHUSDT` | 172.8% | 17.2% | 2.49 | 46 | 47.8% | 29.3% |
-| Growth `BTCUSDT` | 299.2% | 29.0% | 2.75 | 42 | 47.6% | 15.0% |
-| Growth `ETHUSDT` | 451.3% | 31.4% | 2.11 | 46 | 47.8% | 22.9% |
+| Balanced `BTCUSDT` | 120.7% | 16.2% | 3.00 | 40 | 47.5% | 14.8% |
+| Balanced `ETHUSDT` | 172.7% | 17.2% | 2.49 | 46 | 47.8% | 29.3% |
+| Growth `BTCUSDT` | 324.9% | 29.0% | 2.86 | 40 | 47.5% | 15.0% |
+| Growth `ETHUSDT` | 450.9% | 31.4% | 2.11 | 46 | 47.8% | 22.9% |
 
 The balanced profile was selected because its result is distributed across more
 than forty positions on both symbols. The growth profile crosses 400% only on
@@ -81,12 +81,13 @@ the retrieved BTC daily series began on 29 December 2023 and ETH on 6 February
 
 | Delta contract | Net profit | Max drawdown | Profit factor | Positions |
 | --- | ---: | ---: | ---: | ---: |
-| `BTCUSD` | 11.7% | 7.4% | 2.02 | 13 |
-| `ETHUSD` | 2.2% | 12.4% | 1.13 | 13 |
+| `BTCUSD` | 14.9% | 7.4% | 2.68 | 11 |
+| `ETHUSD` | 10.3% | 6.1% | 2.13 | 8 |
 
-These modest results are useful: they prevent the full-cycle bull markets from
-hiding a weak recent regime. They are still in-sample design checks, not an
-untouched holdout.
+These results include the 250-bar history gate and one adverse tick of slippage
+per fill. They prevent the full-cycle bull markets from hiding a weak recent
+regime, but remain in-sample design checks rather than an untouched holdout.
+The complete five-contract run is in `docs/backtest_2026-07-16.md`.
 
 ## Delta Exchange India universe
 
