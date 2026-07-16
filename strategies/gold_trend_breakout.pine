@@ -1,0 +1,153 @@
+//@version=6
+//@strategy_alert_message {{strategy.order.alert_message}}
+strategy(
+     "Robust Gold Trend Breakout v0.1",
+     overlay = true,
+     initial_capital = 1000000,
+     pyramiding = 0,
+     commission_type = strategy.commission.percent,
+     commission_value = 0.05,
+     slippage = 2,
+     process_orders_on_close = false,
+     calc_on_every_tick = false,
+     margin_long = 50,
+     margin_short = 50
+)
+
+// This strategy is a research baseline. It intentionally avoids take-profit
+// optimization and uses completed bars plus confirmed higher-timeframe data.
+
+// ── Signal inputs ────────────────────────────────────────────────────────────
+int breakoutLength = input.int(55, "Breakout length", minval = 20, group = "Signal")
+int channelExitLength = input.int(20, "Channel exit length", minval = 5, group = "Signal")
+int trendLength = input.int(200, "Daily EMA length", minval = 50, group = "Signal")
+bool allowLong = input.bool(true, "Allow long entries", group = "Signal")
+bool allowShort = input.bool(true, "Allow short entries", group = "Signal")
+bool requireFourHour = input.bool(true, "Require a 4-hour chart", group = "Signal")
+
+// ── Risk inputs ──────────────────────────────────────────────────────────────
+int atrLength = input.int(20, "ATR length", minval = 5, group = "Risk")
+float atrMultiple = input.float(2.5, "ATR stop multiple", minval = 0.5, step = 0.1, group = "Risk")
+float riskPercent = input.float(0.35, "Equity risk per entry (%)", minval = 0.05, maxval = 0.50, step = 0.05, group = "Risk")
+float targetVolPercent = input.float(10.0, "Annualized volatility target (%)", minval = 2.0, maxval = 20.0, step = 0.5, group = "Risk")
+int volatilityLength = input.int(60, "Volatility lookback", minval = 20, group = "Risk")
+int barsPerYear = input.int(1512, "Bars per year for volatility", minval = 100, group = "Risk")
+float leverageCap = input.float(2.0, "Gross leverage cap", minval = 0.25, maxval = 2.0, step = 0.25, group = "Risk")
+float maxPositionSize = input.float(100.0, "Absolute position-size cap", minval = 1.0, group = "Risk")
+float maxIntradayLossPercent = input.float(1.5, "Intraday loss halt (%)", minval = 0.25, maxval = 3.0, step = 0.25, group = "Risk")
+float maxDrawdownPercent = input.float(12.0, "Maximum drawdown halt (%)", minval = 5.0, maxval = 20.0, step = 0.5, group = "Risk")
+
+if barstate.isfirst and requireFourHour and timeframe.in_seconds() != timeframe.in_seconds("240")
+    runtime.error("Use a 4-hour chart or disable the timeframe guard after updating bars-per-year.")
+
+strategy.risk.max_intraday_loss(maxIntradayLossPercent, strategy.percent_of_equity)
+strategy.risk.max_drawdown(maxDrawdownPercent, strategy.percent_of_equity)
+strategy.risk.max_position_size(maxPositionSize)
+
+// Use the previous completed daily EMA with lookahead_on. The one-bar offset
+// and lookahead mode are paired so historical bars never receive an unfinished
+// or future daily value.
+float confirmedDailyEma = request.security(
+     syminfo.tickerid,
+     "1D",
+     ta.ema(close, trendLength)[1],
+     lookahead = barmerge.lookahead_on
+)
+
+// Every channel excludes the current bar. This prevents the breakout bar from
+// contributing to the threshold it must cross.
+float priorBreakoutHigh = ta.highest(high, breakoutLength)[1]
+float priorBreakoutLow = ta.lowest(low, breakoutLength)[1]
+float priorChannelLow = ta.lowest(low, channelExitLength)[1]
+float priorChannelHigh = ta.highest(high, channelExitLength)[1]
+float currentAtr = ta.atr(atrLength)
+
+float logReturn = math.log(close / close[1])
+float realizedVolatility = ta.stdev(logReturn, volatilityLength) * math.sqrt(barsPerYear)
+float targetVolatility = targetVolPercent / 100.0
+float volatilityScale = na(realizedVolatility) or realizedVolatility <= 0.0 ? 0.0 : math.min(1.0, targetVolatility / realizedVolatility)
+
+float stopDistance = currentAtr * atrMultiple
+float pointValue = math.max(syminfo.pointvalue, 0.0000001)
+float riskPerUnit = stopDistance * pointValue
+float equityAtRisk = strategy.equity * riskPercent / 100.0
+float riskSizedQuantity = riskPerUnit > 0.0 ? equityAtRisk / riskPerUnit : 0.0
+float maxNotional = strategy.equity * leverageCap
+float notionalPerUnit = close * pointValue
+float leverageSizedQuantity = notionalPerUnit > 0.0 ? maxNotional / notionalPerUnit : 0.0
+float unroundedQuantity = math.min(riskSizedQuantity * volatilityScale, leverageSizedQuantity)
+float contractStep = math.max(syminfo.mincontract, 0.0000001)
+float orderQuantity = math.floor(unroundedQuantity / contractStep) * contractStep
+orderQuantity := math.min(orderQuantity, maxPositionSize)
+
+bool dataReady = not na(confirmedDailyEma) and not na(priorBreakoutHigh) and not na(priorBreakoutLow) and not na(currentAtr)
+bool canEnter = barstate.isconfirmed and dataReady and orderQuantity >= contractStep and strategy.position_size == 0
+bool longSignal = canEnter and allowLong and close > priorBreakoutHigh and close > confirmedDailyEma
+bool shortSignal = canEnter and allowShort and close < priorBreakoutLow and close < confirmedDailyEma
+
+orderMessage(string action, float quantity, float protectiveStop) =>
+    "{\"version\":\"0.1\",\"ticker\":\"" + syminfo.tickerid +
+     "\",\"action\":\"" + action +
+     "\",\"quantity\":\"" + str.tostring(quantity) +
+     "\",\"protective_stop\":\"" + str.tostring(protectiveStop, format.mintick) +
+     "\",\"bar_time\":\"" + str.tostring(time) + "\"}"
+
+var float activeStop = na
+
+if longSignal
+    activeStop := close - stopDistance
+    strategy.entry(
+         "Long",
+         strategy.long,
+         qty = orderQuantity,
+         alert_message = orderMessage("ENTER_LONG", orderQuantity, activeStop)
+    )
+
+if shortSignal
+    activeStop := close + stopDistance
+    strategy.entry(
+         "Short",
+         strategy.short,
+         qty = orderQuantity,
+         alert_message = orderMessage("ENTER_SHORT", orderQuantity, activeStop)
+    )
+
+if strategy.position_size > 0
+    strategy.exit(
+         "Long ATR stop",
+         from_entry = "Long",
+         stop = activeStop,
+         alert_message = orderMessage("EXIT_LONG_STOP", math.abs(strategy.position_size), activeStop)
+    )
+    if barstate.isconfirmed and close < priorChannelLow
+        strategy.close(
+             "Long",
+             comment = "20-bar channel exit",
+             alert_message = orderMessage("EXIT_LONG_CHANNEL", math.abs(strategy.position_size), close)
+        )
+
+if strategy.position_size < 0
+    strategy.exit(
+         "Short ATR stop",
+         from_entry = "Short",
+         stop = activeStop,
+         alert_message = orderMessage("EXIT_SHORT_STOP", math.abs(strategy.position_size), activeStop)
+    )
+    if barstate.isconfirmed and close > priorChannelHigh
+        strategy.close(
+             "Short",
+             comment = "20-bar channel exit",
+             alert_message = orderMessage("EXIT_SHORT_CHANNEL", math.abs(strategy.position_size), close)
+        )
+
+bool positionJustClosed = strategy.position_size == 0 and strategy.position_size[1] != 0
+if positionJustClosed
+    activeStop := na
+
+plot(confirmedDailyEma, "Confirmed daily EMA", color = color.orange, linewidth = 2)
+plot(priorBreakoutHigh, "Prior breakout high", color = color.new(color.green, 70), style = plot.style_linebr)
+plot(priorBreakoutLow, "Prior breakout low", color = color.new(color.red, 70), style = plot.style_linebr)
+plot(strategy.position_size != 0 ? activeStop : na, "Protective stop", color = color.red, linewidth = 2, style = plot.style_linebr)
+
+plotshape(longSignal, title = "Long signal", text = "L", location = location.belowbar, color = color.green, style = shape.labelup, textcolor = color.white, size = size.tiny)
+plotshape(shortSignal, title = "Short signal", text = "S", location = location.abovebar, color = color.red, style = shape.labeldown, textcolor = color.white, size = size.tiny)

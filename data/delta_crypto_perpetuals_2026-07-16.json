@@ -1,0 +1,2124 @@
+{
+  "source": "https://api.india.delta.exchange/v2/products",
+  "as_of": "2026-07-16",
+  "policy": {
+    "instrument": "live perpetual_futures",
+    "probation": "less than 365 days since Delta launch",
+    "recent": "90 days or less since Delta launch",
+    "excluded": "tokenized stocks, indices, and gold/silver-linked tokens"
+  },
+  "counts": {
+    "catalogue_products": 927,
+    "live_perpetuals": 210,
+    "crypto_perpetuals": 182,
+    "recommended_core": 20,
+    "established_research": 97,
+    "probation": 65,
+    "recent": 15,
+    "excluded_non_crypto": 28
+  },
+  "recommended_core": [
+    {
+      "symbol": "AAVEUSD",
+      "underlying": "AAVE",
+      "name": "Aave",
+      "launch_time": "2024-05-06T06:27:07Z",
+      "age_days": 800,
+      "contract_value": "1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ADAUSD",
+      "underlying": "ADA",
+      "name": "Cardano",
+      "launch_time": "2024-04-18T12:57:26Z",
+      "age_days": 818,
+      "contract_value": "1",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "APTUSD",
+      "underlying": "APT",
+      "name": "Aptos",
+      "launch_time": "2024-05-15T10:32:32Z",
+      "age_days": 791,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "AVAXUSD",
+      "underlying": "AVAX",
+      "name": "Avalanche",
+      "launch_time": "2024-04-08T11:47:25Z",
+      "age_days": 828,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BCHUSD",
+      "underlying": "BCH",
+      "name": "Bitcoin Cash",
+      "launch_time": "2024-04-10T05:45:05Z",
+      "age_days": 826,
+      "contract_value": "0.01",
+      "tick_size": "0.01",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BNBUSD",
+      "underlying": "BNB",
+      "name": "BNB",
+      "launch_time": "2024-04-10T07:03:43Z",
+      "age_days": 826,
+      "contract_value": "0.1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BTCUSD",
+      "underlying": "BTC",
+      "name": "Bitcoin",
+      "launch_time": "2023-12-18T13:10:39Z",
+      "age_days": 940,
+      "contract_value": "0.001",
+      "tick_size": "0.5",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "DOGEUSD",
+      "underlying": "DOGE",
+      "name": "Dogecoin",
+      "launch_time": "2024-04-08T09:42:03Z",
+      "age_days": 828,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "DOTUSD",
+      "underlying": "DOT",
+      "name": "Polkadot",
+      "launch_time": "2024-04-15T04:47:05Z",
+      "age_days": 821,
+      "contract_value": "1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ETHUSD",
+      "underlying": "ETH",
+      "name": "Ethereum",
+      "launch_time": "2024-02-05T12:04:17Z",
+      "age_days": 891,
+      "contract_value": "0.01",
+      "tick_size": "0.05",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "HYPEUSD",
+      "underlying": "HYPE",
+      "name": "Hyperliquid",
+      "launch_time": "2025-06-04T07:14:05Z",
+      "age_days": 406,
+      "contract_value": "0.1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "LINKUSD",
+      "underlying": "LINK",
+      "name": "Chainlink",
+      "launch_time": "2024-04-10T06:55:02Z",
+      "age_days": 826,
+      "contract_value": "1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "LTCUSD",
+      "underlying": "LTC",
+      "name": "Litecoin",
+      "launch_time": "2024-04-10T05:57:18Z",
+      "age_days": 826,
+      "contract_value": "0.1",
+      "tick_size": "0.01",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "NEARUSD",
+      "underlying": "NEAR",
+      "name": "NEAR Protocol",
+      "launch_time": "2024-04-18T12:57:45Z",
+      "age_days": 818,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "POLUSD",
+      "underlying": "POL",
+      "name": "Polygon",
+      "launch_time": "2024-10-08T07:15:14Z",
+      "age_days": 645,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SOLUSD",
+      "underlying": "SOL",
+      "name": "Solana",
+      "launch_time": "2024-04-08T11:36:29Z",
+      "age_days": 828,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SUIUSD",
+      "underlying": "SUI",
+      "name": "Sui",
+      "launch_time": "2024-04-24T08:09:40Z",
+      "age_days": 812,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "TRXUSD",
+      "underlying": "TRX",
+      "name": "TRON",
+      "launch_time": "2024-05-15T10:31:48Z",
+      "age_days": 791,
+      "contract_value": "1",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "UNIUSD",
+      "underlying": "UNI",
+      "name": "Uniswap",
+      "launch_time": "2024-04-15T04:43:34Z",
+      "age_days": 821,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "XRPUSD",
+      "underlying": "XRP",
+      "name": "Ripple",
+      "launch_time": "2024-04-10T05:30:01Z",
+      "age_days": 826,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    }
+  ],
+  "recent_listings": [
+    {
+      "symbol": "GRAMUSD",
+      "underlying": "GRAM",
+      "name": "Gram",
+      "launch_time": "2026-07-07T10:20:14Z",
+      "age_days": 8,
+      "contract_value": "10",
+      "tick_size": "0.001",
+      "exchange_tags": [
+        "new"
+      ]
+    },
+    {
+      "symbol": "INUSD",
+      "underlying": "IN",
+      "name": "INFINIT",
+      "launch_time": "2026-07-07T10:20:12Z",
+      "age_days": 8,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": [
+        "new"
+      ]
+    },
+    {
+      "symbol": "TACUSD",
+      "underlying": "TAC",
+      "name": "TAC",
+      "launch_time": "2026-07-07T10:20:09Z",
+      "age_days": 8,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": [
+        "new"
+      ]
+    },
+    {
+      "symbol": "VELVETUSD",
+      "underlying": "VELVET",
+      "name": "Velvet",
+      "launch_time": "2026-06-16T07:44:13Z",
+      "age_days": 29,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "OPNUSD",
+      "underlying": "OPN",
+      "name": "Opinion",
+      "launch_time": "2026-06-09T08:10:18Z",
+      "age_days": 36,
+      "contract_value": "100",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ALLOUSD",
+      "underlying": "ALLO",
+      "name": "Allora",
+      "launch_time": "2026-06-09T08:08:28Z",
+      "age_days": 36,
+      "contract_value": "100",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BILLUSD",
+      "underlying": "BILL",
+      "name": "Billions Network",
+      "launch_time": "2026-05-15T09:43:26Z",
+      "age_days": 61,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "AIGENSYNUSD",
+      "underlying": "AIGENSYN",
+      "name": "Gensyn",
+      "launch_time": "2026-05-15T09:43:26Z",
+      "age_days": 61,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BUSD",
+      "underlying": "B",
+      "name": "BUILDon",
+      "launch_time": "2026-05-04T12:23:30Z",
+      "age_days": 72,
+      "contract_value": "100",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SKYAIUSD",
+      "underlying": "SKYAI",
+      "name": "SkyAI",
+      "launch_time": "2026-05-04T12:23:29Z",
+      "age_days": 72,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "LABUSD",
+      "underlying": "LAB",
+      "name": "LAB",
+      "launch_time": "2026-05-04T12:23:29Z",
+      "age_days": 72,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "PIEVERSEUSD",
+      "underlying": "PIEVERSE",
+      "name": "Pieverse",
+      "launch_time": "2026-04-22T10:55:21Z",
+      "age_days": 84,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "CHIPUSD",
+      "underlying": "CHIP",
+      "name": "CHIP",
+      "launch_time": "2026-04-22T10:55:21Z",
+      "age_days": 84,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ENJUSD",
+      "underlying": "ENJ",
+      "name": "Enjin Coin",
+      "launch_time": "2026-04-17T10:45:19Z",
+      "age_days": 89,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BASEDUSD",
+      "underlying": "BASED",
+      "name": "Based",
+      "launch_time": "2026-04-17T10:45:18Z",
+      "age_days": 89,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    }
+  ],
+  "probation": [
+    {
+      "symbol": "GRAMUSD",
+      "underlying": "GRAM",
+      "name": "Gram",
+      "launch_time": "2026-07-07T10:20:14Z",
+      "age_days": 8,
+      "contract_value": "10",
+      "tick_size": "0.001",
+      "exchange_tags": [
+        "new"
+      ]
+    },
+    {
+      "symbol": "INUSD",
+      "underlying": "IN",
+      "name": "INFINIT",
+      "launch_time": "2026-07-07T10:20:12Z",
+      "age_days": 8,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": [
+        "new"
+      ]
+    },
+    {
+      "symbol": "TACUSD",
+      "underlying": "TAC",
+      "name": "TAC",
+      "launch_time": "2026-07-07T10:20:09Z",
+      "age_days": 8,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": [
+        "new"
+      ]
+    },
+    {
+      "symbol": "VELVETUSD",
+      "underlying": "VELVET",
+      "name": "Velvet",
+      "launch_time": "2026-06-16T07:44:13Z",
+      "age_days": 29,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "OPNUSD",
+      "underlying": "OPN",
+      "name": "Opinion",
+      "launch_time": "2026-06-09T08:10:18Z",
+      "age_days": 36,
+      "contract_value": "100",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ALLOUSD",
+      "underlying": "ALLO",
+      "name": "Allora",
+      "launch_time": "2026-06-09T08:08:28Z",
+      "age_days": 36,
+      "contract_value": "100",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BILLUSD",
+      "underlying": "BILL",
+      "name": "Billions Network",
+      "launch_time": "2026-05-15T09:43:26Z",
+      "age_days": 61,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "AIGENSYNUSD",
+      "underlying": "AIGENSYN",
+      "name": "Gensyn",
+      "launch_time": "2026-05-15T09:43:26Z",
+      "age_days": 61,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BUSD",
+      "underlying": "B",
+      "name": "BUILDon",
+      "launch_time": "2026-05-04T12:23:30Z",
+      "age_days": 72,
+      "contract_value": "100",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SKYAIUSD",
+      "underlying": "SKYAI",
+      "name": "SkyAI",
+      "launch_time": "2026-05-04T12:23:29Z",
+      "age_days": 72,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "LABUSD",
+      "underlying": "LAB",
+      "name": "LAB",
+      "launch_time": "2026-05-04T12:23:29Z",
+      "age_days": 72,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "PIEVERSEUSD",
+      "underlying": "PIEVERSE",
+      "name": "Pieverse",
+      "launch_time": "2026-04-22T10:55:21Z",
+      "age_days": 84,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "CHIPUSD",
+      "underlying": "CHIP",
+      "name": "CHIP",
+      "launch_time": "2026-04-22T10:55:21Z",
+      "age_days": 84,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ENJUSD",
+      "underlying": "ENJ",
+      "name": "Enjin Coin",
+      "launch_time": "2026-04-17T10:45:19Z",
+      "age_days": 89,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BASEDUSD",
+      "underlying": "BASED",
+      "name": "Based",
+      "launch_time": "2026-04-17T10:45:18Z",
+      "age_days": 89,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SIRENUSD",
+      "underlying": "SIREN",
+      "name": "Siren",
+      "launch_time": "2026-04-14T12:12:17Z",
+      "age_days": 92,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "RAVEUSD",
+      "underlying": "RAVE",
+      "name": "RaveDAO",
+      "launch_time": "2026-04-14T12:12:17Z",
+      "age_days": 92,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ARIAUSD",
+      "underlying": "ARIA",
+      "name": "Aria.AI",
+      "launch_time": "2026-04-14T12:12:17Z",
+      "age_days": 92,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "AIOTUSD",
+      "underlying": "AIOT",
+      "name": "OKZOO",
+      "launch_time": "2026-04-14T12:12:17Z",
+      "age_days": 92,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "AXSUSD",
+      "underlying": "AXS",
+      "name": "Axie Infinity",
+      "launch_time": "2026-01-20T08:25:40Z",
+      "age_days": 176,
+      "contract_value": "10",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "DUSKUSD",
+      "underlying": "DUSK",
+      "name": "DUSK",
+      "launch_time": "2026-01-20T08:23:41Z",
+      "age_days": 176,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "FRAXUSD",
+      "underlying": "FRAX",
+      "name": "Frax",
+      "launch_time": "2026-01-20T08:22:24Z",
+      "age_days": 176,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "DASHUSD",
+      "underlying": "DASH",
+      "name": "Dash",
+      "launch_time": "2026-01-15T09:15:37Z",
+      "age_days": 181,
+      "contract_value": "0.1",
+      "tick_size": "0.01",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "XMRUSD",
+      "underlying": "XMR",
+      "name": "Monero",
+      "launch_time": "2026-01-15T09:15:17Z",
+      "age_days": 181,
+      "contract_value": "0.01",
+      "tick_size": "0.01",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "LIGHTUSD",
+      "underlying": "LIGHT",
+      "name": "Bitlight",
+      "launch_time": "2026-01-05T10:33:11Z",
+      "age_days": 191,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "RIVERUSD",
+      "underlying": "RIVER",
+      "name": "River",
+      "launch_time": "2026-01-05T10:33:01Z",
+      "age_days": 191,
+      "contract_value": "1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "LITUSD",
+      "underlying": "LIT",
+      "name": "Lighter",
+      "launch_time": "2026-01-05T10:32:45Z",
+      "age_days": 191,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BEATUSD",
+      "underlying": "BEAT",
+      "name": "Audiera",
+      "launch_time": "2026-01-05T10:25:48Z",
+      "age_days": 191,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "1000BONKUSD",
+      "underlying": "1000BONK",
+      "name": "1000BONK",
+      "launch_time": "2025-12-29T07:57:07Z",
+      "age_days": 198,
+      "contract_value": "1000",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "1000FLOKIUSD",
+      "underlying": "1000FLOKI",
+      "name": "1000FLOKI",
+      "launch_time": "2025-12-29T07:56:31Z",
+      "age_days": 198,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "1000PEPEUSD",
+      "underlying": "1000PEPE",
+      "name": "1000PEPE",
+      "launch_time": "2025-12-29T07:56:05Z",
+      "age_days": 198,
+      "contract_value": "1000",
+      "tick_size": "0.0000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "1000SHIBUSD",
+      "underlying": "1000SHIB",
+      "name": "1000SHIB",
+      "launch_time": "2025-12-29T07:55:28Z",
+      "age_days": 198,
+      "contract_value": "1000",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "PARTIUSD",
+      "underlying": "PARTI",
+      "name": "Particle Network",
+      "launch_time": "2025-12-01T07:56:10Z",
+      "age_days": 226,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "TNSRUSD",
+      "underlying": "TNSR",
+      "name": "Tensor",
+      "launch_time": "2025-12-01T07:56:09Z",
+      "age_days": 226,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "PIPPINUSD",
+      "underlying": "PIPPIN",
+      "name": "pippin",
+      "launch_time": "2025-12-01T07:56:09Z",
+      "age_days": 226,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "MONUSD",
+      "underlying": "MON",
+      "name": "Monad",
+      "launch_time": "2025-12-01T07:56:09Z",
+      "age_days": 226,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ZENUSD",
+      "underlying": "ZEN",
+      "name": "Horizen",
+      "launch_time": "2025-11-12T05:37:21Z",
+      "age_days": 245,
+      "contract_value": "1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "KITEUSD",
+      "underlying": "KITE",
+      "name": "Kite",
+      "launch_time": "2025-11-12T05:37:17Z",
+      "age_days": 245,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "MMTUSD",
+      "underlying": "MMT",
+      "name": "Momentum",
+      "launch_time": "2025-11-12T05:37:12Z",
+      "age_days": 245,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "STRKUSD",
+      "underlying": "STRK",
+      "name": "Starknet",
+      "launch_time": "2025-11-12T05:37:07Z",
+      "age_days": 245,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "GIGGLEUSD",
+      "underlying": "GIGGLE",
+      "name": "Giggle Fund",
+      "launch_time": "2025-11-12T05:37:02Z",
+      "age_days": 245,
+      "contract_value": "0.1",
+      "tick_size": "0.01",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BLESSUSD",
+      "underlying": "BLESS",
+      "name": "Bless",
+      "launch_time": "2025-10-07T06:15:13Z",
+      "age_days": 281,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "EVAAUSD",
+      "underlying": "EVAA",
+      "name": "EVAA Protocol",
+      "launch_time": "2025-10-07T06:15:10Z",
+      "age_days": 281,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "HANAUSD",
+      "underlying": "HANA",
+      "name": "HANA Network",
+      "launch_time": "2025-10-07T06:15:04Z",
+      "age_days": 281,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ZECUSD",
+      "underlying": "ZEC",
+      "name": "Zcash",
+      "launch_time": "2025-10-06T11:17:09Z",
+      "age_days": 282,
+      "contract_value": "0.1",
+      "tick_size": "0.01",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "COAIUSD",
+      "underlying": "COAI",
+      "name": "ChainOpera AI",
+      "launch_time": "2025-10-06T11:17:05Z",
+      "age_days": 282,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "STBLUSD",
+      "underlying": "STBL",
+      "name": "STBL",
+      "launch_time": "2025-10-01T07:58:28Z",
+      "age_days": 287,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ORDERUSD",
+      "underlying": "ORDER",
+      "name": "Orderly",
+      "launch_time": "2025-10-01T07:58:21Z",
+      "age_days": 287,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "XANUSD",
+      "underlying": "XAN",
+      "name": "Anoma",
+      "launch_time": "2025-10-01T07:58:17Z",
+      "age_days": 287,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "EDENUSD",
+      "underlying": "EDEN",
+      "name": "OpenEden",
+      "launch_time": "2025-10-01T07:58:07Z",
+      "age_days": 287,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "FFUSD",
+      "underlying": "FF",
+      "name": "Falcon Finance",
+      "launch_time": "2025-10-01T07:58:02Z",
+      "age_days": 287,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "XPLUSD",
+      "underlying": "XPL",
+      "name": "Plasma",
+      "launch_time": "2025-09-27T11:05:20Z",
+      "age_days": 291,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ASTERUSD",
+      "underlying": "ASTER",
+      "name": "Aster",
+      "launch_time": "2025-09-24T10:55:01Z",
+      "age_days": 294,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "WLFIUSD",
+      "underlying": "WLFI",
+      "name": "World Liberty Financial",
+      "launch_time": "2025-09-01T13:16:14Z",
+      "age_days": 317,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "AIOUSD",
+      "underlying": "AIO",
+      "name": "OlaXBT",
+      "launch_time": "2025-08-14T06:39:22Z",
+      "age_days": 335,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ZORAUSD",
+      "underlying": "ZORA",
+      "name": "Zora",
+      "launch_time": "2025-08-14T06:39:14Z",
+      "age_days": 335,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "TOWNSUSD",
+      "underlying": "TOWNS",
+      "name": "Towns",
+      "launch_time": "2025-08-14T06:39:09Z",
+      "age_days": 335,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "PROVEUSD",
+      "underlying": "PROVE",
+      "name": "Succinct",
+      "launch_time": "2025-08-14T06:39:06Z",
+      "age_days": 335,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SKLUSD",
+      "underlying": "SKL",
+      "name": "SKALE",
+      "launch_time": "2025-08-14T06:38:03Z",
+      "age_days": 335,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "AINUSD",
+      "underlying": "AIN",
+      "name": "Infinity Ground",
+      "launch_time": "2025-07-16T05:52:32Z",
+      "age_days": 364,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SAHARAUSD",
+      "underlying": "SAHARA",
+      "name": "Sahara AI",
+      "launch_time": "2025-07-16T05:52:23Z",
+      "age_days": 364,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "HUSD",
+      "underlying": "H",
+      "name": "Humanity",
+      "launch_time": "2025-07-16T05:52:18Z",
+      "age_days": 364,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "MUSD",
+      "underlying": "M",
+      "name": "MemeCore",
+      "launch_time": "2025-07-16T05:52:14Z",
+      "age_days": 364,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "CROSSUSD",
+      "underlying": "CROSS",
+      "name": "Cross",
+      "launch_time": "2025-07-16T05:52:08Z",
+      "age_days": 364,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "PUMPUSD",
+      "underlying": "PUMP",
+      "name": "Pump.fun",
+      "launch_time": "2025-07-16T05:52:04Z",
+      "age_days": 364,
+      "contract_value": "1000",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    }
+  ],
+  "established_research": [
+    {
+      "symbol": "1000SATSUSD",
+      "underlying": "1000SATS",
+      "name": "1000SATS",
+      "launch_time": "2024-12-12T08:13:00Z",
+      "age_days": 580,
+      "contract_value": "1000",
+      "tick_size": "0.0000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "1MBABYDOGEUSD",
+      "underlying": "1MBABYDOGE",
+      "name": "1MBABYDOGE",
+      "launch_time": "2024-12-12T07:47:02Z",
+      "age_days": 580,
+      "contract_value": "100",
+      "tick_size": "0.0000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ACTUSD",
+      "underlying": "ACT",
+      "name": "Act I The AI Prophecy",
+      "launch_time": "2024-11-15T03:45:33Z",
+      "age_days": 607,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "AIXBTUSD",
+      "underlying": "AIXBT",
+      "name": "aixbt by Virtuals",
+      "launch_time": "2025-01-06T08:20:08Z",
+      "age_days": 555,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ALTUSD",
+      "underlying": "ALT",
+      "name": "AltLayer",
+      "launch_time": "2024-05-15T10:32:23Z",
+      "age_days": 791,
+      "contract_value": "10",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "API3USD",
+      "underlying": "API3",
+      "name": "API3",
+      "launch_time": "2025-03-21T04:43:09Z",
+      "age_days": 481,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ARBUSD",
+      "underlying": "ARB",
+      "name": "Arbitrum",
+      "launch_time": "2024-04-24T08:11:05Z",
+      "age_days": 812,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ARCUSD",
+      "underlying": "ARC",
+      "name": "AI Rig Complex",
+      "launch_time": "2025-01-24T07:16:02Z",
+      "age_days": 537,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ARUSD",
+      "underlying": "AR",
+      "name": "Arweave",
+      "launch_time": "2024-05-23T08:40:32Z",
+      "age_days": 783,
+      "contract_value": "1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "AUCTIONUSD",
+      "underlying": "AUCTION",
+      "name": "Bounce",
+      "launch_time": "2025-03-17T11:24:16Z",
+      "age_days": 485,
+      "contract_value": "0.1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "AVAAIUSD",
+      "underlying": "AVAAI",
+      "name": "AVA AI",
+      "launch_time": "2025-01-24T05:55:24Z",
+      "age_days": 537,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BBUSD",
+      "underlying": "BB",
+      "name": "BounceBit",
+      "launch_time": "2024-06-05T04:45:29Z",
+      "age_days": 770,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BERAUSD",
+      "underlying": "BERA",
+      "name": "Berachain",
+      "launch_time": "2025-02-07T11:20:00Z",
+      "age_days": 523,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BIOUSD",
+      "underlying": "BIO",
+      "name": "Bio Protocol",
+      "launch_time": "2025-01-10T07:38:11Z",
+      "age_days": 551,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BLURUSD",
+      "underlying": "BLUR",
+      "name": "Blur",
+      "launch_time": "2024-07-11T08:01:20Z",
+      "age_days": 734,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "BMTUSD",
+      "underlying": "BMT",
+      "name": "Bubblemaps",
+      "launch_time": "2025-03-21T04:43:01Z",
+      "age_days": 481,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "CAKEUSD",
+      "underlying": "CAKE",
+      "name": "PancakeSwap",
+      "launch_time": "2025-02-20T08:25:04Z",
+      "age_days": 510,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "COOKIEUSD",
+      "underlying": "COOKIE",
+      "name": "Cookie DAO",
+      "launch_time": "2025-01-24T05:55:05Z",
+      "age_days": 537,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "DEEPUSD",
+      "underlying": "DEEP",
+      "name": "DeepBook",
+      "launch_time": "2025-05-05T07:50:08Z",
+      "age_days": 436,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "DOGSUSD",
+      "underlying": "DOGS",
+      "name": "Dogs",
+      "launch_time": "2024-12-10T08:17:01Z",
+      "age_days": 582,
+      "contract_value": "1000",
+      "tick_size": "0.0000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "DYDXUSD",
+      "underlying": "DYDX",
+      "name": "dYdX",
+      "launch_time": "2024-05-23T08:40:45Z",
+      "age_days": 783,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "EIGENUSD",
+      "underlying": "EIGEN",
+      "name": "Eigenlayer",
+      "launch_time": "2024-10-08T07:15:07Z",
+      "age_days": 645,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ENAUSD",
+      "underlying": "ENA",
+      "name": "Ethena",
+      "launch_time": "2024-05-06T06:27:09Z",
+      "age_days": 800,
+      "contract_value": "1",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ETCUSD",
+      "underlying": "ETC",
+      "name": "Ethereum Classic",
+      "launch_time": "2024-05-09T06:40:08Z",
+      "age_days": 797,
+      "contract_value": "0.1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ETHFIUSD",
+      "underlying": "ETHFI",
+      "name": "Ether.fi",
+      "launch_time": "2024-06-05T04:45:17Z",
+      "age_days": 770,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "FARTCOINUSD",
+      "underlying": "FARTCOIN",
+      "name": "Fartcoin",
+      "launch_time": "2025-01-06T08:00:23Z",
+      "age_days": 555,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "FILUSD",
+      "underlying": "FIL",
+      "name": "Filecoin",
+      "launch_time": "2024-05-09T06:40:08Z",
+      "age_days": 797,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "GALAUSD",
+      "underlying": "GALA",
+      "name": "GALA",
+      "launch_time": "2024-07-11T08:01:24Z",
+      "age_days": 734,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "GLMUSD",
+      "underlying": "GLM",
+      "name": "Golem",
+      "launch_time": "2025-02-20T08:47:06Z",
+      "age_days": 510,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "GOATUSD",
+      "underlying": "GOAT",
+      "name": "Goatseus Maximus",
+      "launch_time": "2024-11-26T10:30:32Z",
+      "age_days": 596,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "GRIFFAINUSD",
+      "underlying": "GRIFFAIN",
+      "name": "GRIFFAIN",
+      "launch_time": "2025-01-22T10:45:15Z",
+      "age_days": 539,
+      "contract_value": "10",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "HBARUSD",
+      "underlying": "HBAR",
+      "name": "Hedera",
+      "launch_time": "2024-04-30T04:45:54Z",
+      "age_days": 806,
+      "contract_value": "1",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "HIVEUSD",
+      "underlying": "HIVE",
+      "name": "Hive",
+      "launch_time": "2025-01-10T08:58:41Z",
+      "age_days": 551,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "INITUSD",
+      "underlying": "INIT",
+      "name": "Initia",
+      "launch_time": "2025-05-05T07:50:05Z",
+      "age_days": 436,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "INJUSD",
+      "underlying": "INJ",
+      "name": "Injective",
+      "launch_time": "2024-04-18T12:58:27Z",
+      "age_days": 818,
+      "contract_value": "1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "IOTAUSD",
+      "underlying": "IOTA",
+      "name": "IOTA",
+      "launch_time": "2024-12-05T07:27:14Z",
+      "age_days": 587,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "IOUSD",
+      "underlying": "IO",
+      "name": "io.net",
+      "launch_time": "2024-07-01T11:15:14Z",
+      "age_days": 744,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "JASMYUSD",
+      "underlying": "JASMY",
+      "name": "JasmyCoin",
+      "launch_time": "2024-12-10T08:17:06Z",
+      "age_days": 582,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "JTOUSD",
+      "underlying": "JTO",
+      "name": "Jito",
+      "launch_time": "2024-05-06T06:27:07Z",
+      "age_days": 800,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "JUPUSD",
+      "underlying": "JUP",
+      "name": "Jupiter",
+      "launch_time": "2025-01-22T10:45:11Z",
+      "age_days": 539,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "KAITOUSD",
+      "underlying": "KAITO",
+      "name": "KAITO",
+      "launch_time": "2025-02-21T09:54:05Z",
+      "age_days": 509,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "KSMUSD",
+      "underlying": "KSM",
+      "name": "Kusama",
+      "launch_time": "2024-11-26T10:30:14Z",
+      "age_days": 596,
+      "contract_value": "0.1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "LAYERUSD",
+      "underlying": "LAYER",
+      "name": "Solayer",
+      "launch_time": "2025-03-17T11:53:31Z",
+      "age_days": 485,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "LDOUSD",
+      "underlying": "LDO",
+      "name": "Lido DAO",
+      "launch_time": "2024-05-09T06:40:08Z",
+      "age_days": 797,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "LISTAUSD",
+      "underlying": "LISTA",
+      "name": "Lista DAO",
+      "launch_time": "2024-07-02T05:07:01Z",
+      "age_days": 743,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "MANAUSD",
+      "underlying": "MANA",
+      "name": "Decentraland",
+      "launch_time": "2024-11-26T08:00:33Z",
+      "age_days": 596,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "MANTAUSD",
+      "underlying": "MANTA",
+      "name": "Manta Network",
+      "launch_time": "2024-07-11T08:01:28Z",
+      "age_days": 734,
+      "contract_value": "1",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "MASKUSD",
+      "underlying": "MASK",
+      "name": "Mask Network",
+      "launch_time": "2025-06-04T07:14:09Z",
+      "age_days": 406,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "MELANIAUSD",
+      "underlying": "MELANIA",
+      "name": "Melania Meme",
+      "launch_time": "2025-01-22T10:45:04Z",
+      "age_days": 539,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "MEMEUSD",
+      "underlying": "MEME",
+      "name": "Memecoin",
+      "launch_time": "2024-04-30T04:45:44Z",
+      "age_days": 806,
+      "contract_value": "100",
+      "tick_size": "0.0000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "MEUSD",
+      "underlying": "ME",
+      "name": "Magic Eden",
+      "launch_time": "2025-06-04T07:14:16Z",
+      "age_days": 406,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "MOODENGUSD",
+      "underlying": "MOODENG",
+      "name": "Moo Deng",
+      "launch_time": "2024-12-05T08:48:12Z",
+      "age_days": 587,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "MOVEUSD",
+      "underlying": "MOVE",
+      "name": "Movement",
+      "launch_time": "2025-01-10T07:38:07Z",
+      "age_days": 551,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "MUBARAKUSD",
+      "underlying": "MUBARAK",
+      "name": "Mubarak",
+      "launch_time": "2025-03-21T04:43:06Z",
+      "age_days": 481,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "NEIROUSD",
+      "underlying": "NEIRO",
+      "name": "Neiro",
+      "launch_time": "2024-10-08T07:20:14Z",
+      "age_days": 645,
+      "contract_value": "1000",
+      "tick_size": "0.0000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "NOTUSD",
+      "underlying": "NOT",
+      "name": "Notcoin",
+      "launch_time": "2024-06-05T04:45:21Z",
+      "age_days": 770,
+      "contract_value": "100",
+      "tick_size": "0.0000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ONDOUSD",
+      "underlying": "ONDO",
+      "name": "ONDO",
+      "launch_time": "2024-05-06T06:27:07Z",
+      "age_days": 800,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "OPUSD",
+      "underlying": "OP",
+      "name": "Optimism",
+      "launch_time": "2024-05-09T06:40:10Z",
+      "age_days": 797,
+      "contract_value": "0.1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ORDIUSD",
+      "underlying": "ORDI",
+      "name": "ORDI",
+      "launch_time": "2024-04-30T04:45:48Z",
+      "age_days": 806,
+      "contract_value": "0.1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "PENDLEUSD",
+      "underlying": "PENDLE",
+      "name": "Pendle",
+      "launch_time": "2024-05-06T06:27:07Z",
+      "age_days": 800,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "PENGUUSD",
+      "underlying": "PENGU",
+      "name": "Pudgy Penguins",
+      "launch_time": "2025-01-10T07:38:03Z",
+      "age_days": 551,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "PEOPLEUSD",
+      "underlying": "PEOPLE",
+      "name": "ConstitutionDAO",
+      "launch_time": "2024-06-05T04:45:09Z",
+      "age_days": 770,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "PIUSD",
+      "underlying": "PI",
+      "name": "Pi Network",
+      "launch_time": "2025-02-20T13:15:52Z",
+      "age_days": 510,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "PNUTUSD",
+      "underlying": "PNUT",
+      "name": "Peanut the Squirrel",
+      "launch_time": "2024-11-15T03:45:23Z",
+      "age_days": 607,
+      "contract_value": "1",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "POPCATUSD",
+      "underlying": "POPCAT",
+      "name": "Popcat",
+      "launch_time": "2024-11-15T03:45:47Z",
+      "age_days": 607,
+      "contract_value": "1",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "RAREUSD",
+      "underlying": "RARE",
+      "name": "SuperRare",
+      "launch_time": "2025-03-17T11:53:27Z",
+      "age_days": 485,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "REDUSD",
+      "underlying": "RED",
+      "name": "RedStone",
+      "launch_time": "2025-03-17T11:24:20Z",
+      "age_days": 485,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "RSRUSD",
+      "underlying": "RSR",
+      "name": "Reserve Rights",
+      "launch_time": "2024-12-05T07:27:01Z",
+      "age_days": 587,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "RUNEUSD",
+      "underlying": "RUNE",
+      "name": "THORChain",
+      "launch_time": "2024-05-23T08:40:03Z",
+      "age_days": 783,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SAGAUSD",
+      "underlying": "SAGA",
+      "name": "Saga",
+      "launch_time": "2024-10-08T07:16:08Z",
+      "age_days": 645,
+      "contract_value": "1",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SEIUSD",
+      "underlying": "SEI",
+      "name": "Sei",
+      "launch_time": "2024-04-24T08:10:11Z",
+      "age_days": 812,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SIGNUSD",
+      "underlying": "SIGN",
+      "name": "Sign",
+      "launch_time": "2025-05-05T07:50:16Z",
+      "age_days": 436,
+      "contract_value": "100",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SOLVUSD",
+      "underlying": "SOLV",
+      "name": "Solv Protocol",
+      "launch_time": "2025-01-24T05:55:13Z",
+      "age_days": 537,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SONICUSD",
+      "underlying": "SONIC",
+      "name": "Sonic SVM",
+      "launch_time": "2025-01-10T08:58:36Z",
+      "age_days": 551,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SOPHUSD",
+      "underlying": "SOPH",
+      "name": "Sophon",
+      "launch_time": "2025-06-04T07:14:12Z",
+      "age_days": 406,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SPXUSD",
+      "underlying": "SPX",
+      "name": "SPX6900",
+      "launch_time": "2025-01-10T08:58:45Z",
+      "age_days": 551,
+      "contract_value": "10",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "STXUSD",
+      "underlying": "STX",
+      "name": "Stacks",
+      "launch_time": "2024-05-15T10:32:28Z",
+      "age_days": 791,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SUNUSD",
+      "underlying": "SUN",
+      "name": "Sun Token",
+      "launch_time": "2024-12-05T08:48:08Z",
+      "age_days": 587,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SUSD",
+      "underlying": "S",
+      "name": "Sonic (ex-FTM)",
+      "launch_time": "2025-01-24T05:55:01Z",
+      "age_days": 537,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SUSHIUSD",
+      "underlying": "SUSHI",
+      "name": "Sushi",
+      "launch_time": "2024-05-23T08:40:41Z",
+      "age_days": 783,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "SWARMSUSD",
+      "underlying": "SWARMS",
+      "name": "Swarms",
+      "launch_time": "2025-01-22T10:45:08Z",
+      "age_days": 539,
+      "contract_value": "10",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "TAOUSD",
+      "underlying": "TAO",
+      "name": "Bittensor",
+      "launch_time": "2024-07-02T05:07:00Z",
+      "age_days": 743,
+      "contract_value": "0.01",
+      "tick_size": "0.01",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "TIAUSD",
+      "underlying": "TIA",
+      "name": "Celestia",
+      "launch_time": "2024-04-24T08:10:35Z",
+      "age_days": 812,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "TRBUSD",
+      "underlying": "TRB",
+      "name": "Tellor Tributes",
+      "launch_time": "2024-05-09T06:40:08Z",
+      "age_days": 797,
+      "contract_value": "0.1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "TRUMPUSD",
+      "underlying": "TRUMP",
+      "name": "Official Trump",
+      "launch_time": "2025-01-18T13:40:18Z",
+      "age_days": 543,
+      "contract_value": "0.1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "TSTUSD",
+      "underlying": "TST",
+      "name": "Test",
+      "launch_time": "2025-02-20T08:47:01Z",
+      "age_days": 510,
+      "contract_value": "100",
+      "tick_size": "0.000001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "USUALUSD",
+      "underlying": "USUAL",
+      "name": "Usual",
+      "launch_time": "2025-01-06T08:00:30Z",
+      "age_days": 555,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "VANAUSD",
+      "underlying": "VANA",
+      "name": "Vana",
+      "launch_time": "2025-01-24T05:55:08Z",
+      "age_days": 537,
+      "contract_value": "1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "VIRTUALUSD",
+      "underlying": "VIRTUAL",
+      "name": "Virtuals Protocol",
+      "launch_time": "2025-01-06T08:00:27Z",
+      "age_days": 555,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "VVVUSD",
+      "underlying": "VVV",
+      "name": "Venice Token",
+      "launch_time": "2025-01-29T17:00:16Z",
+      "age_days": 532,
+      "contract_value": "1",
+      "tick_size": "0.001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "WCTUSD",
+      "underlying": "WCT",
+      "name": "WalletConnect Token",
+      "launch_time": "2025-05-05T08:00:00Z",
+      "age_days": 436,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "WIFUSD",
+      "underlying": "WIF",
+      "name": "dogwifhat",
+      "launch_time": "2024-04-15T05:23:34Z",
+      "age_days": 821,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "WLDUSD",
+      "underlying": "WLD",
+      "name": "Worldcoin",
+      "launch_time": "2024-04-24T08:08:29Z",
+      "age_days": 812,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "XAIUSD",
+      "underlying": "XAI",
+      "name": "XAI",
+      "launch_time": "2024-05-15T10:32:40Z",
+      "age_days": 791,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "XLMUSD",
+      "underlying": "XLM",
+      "name": "Stellar",
+      "launch_time": "2024-11-26T08:09:09Z",
+      "age_days": 596,
+      "contract_value": "1",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ZKUSD",
+      "underlying": "ZK",
+      "name": "ZKsync",
+      "launch_time": "2024-07-01T11:15:09Z",
+      "age_days": 744,
+      "contract_value": "10",
+      "tick_size": "0.00001",
+      "exchange_tags": []
+    },
+    {
+      "symbol": "ZROUSD",
+      "underlying": "ZRO",
+      "name": "LayerZero",
+      "launch_time": "2024-07-01T10:40:45Z",
+      "age_days": 744,
+      "contract_value": "1",
+      "tick_size": "0.0001",
+      "exchange_tags": []
+    }
+  ],
+  "excluded_non_crypto": [
+    {
+      "symbol": "AAPLXUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "AMDBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "AMZNXUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "CBRSBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "COINXUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "CRCLXUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "DRAMBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "EWYBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "GOOGLXUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "INTCBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "LITEBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "METAXUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "MSTRBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "MUBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "NBISBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "NVDAXUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "PAXGUSD",
+      "reason": "gold/silver-linked token"
+    },
+    {
+      "symbol": "PLTRBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "QQQXUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "SKHYBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "SLVONUSD",
+      "reason": "gold/silver-linked token"
+    },
+    {
+      "symbol": "SNDKBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "SOXLBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "SPCXXUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "SPYXUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "TSLAXUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "WDCBUSD",
+      "reason": "tokenized stock or index"
+    },
+    {
+      "symbol": "XAUTUSD",
+      "reason": "gold/silver-linked token"
+    }
+  ]
+}

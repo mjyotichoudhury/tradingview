@@ -1,0 +1,403 @@
+//@version=6
+//@strategy_alert_message {{strategy.order.alert_message}}
+strategy(
+     "Crypto Regime Compounder + Smart Hold v0.1",
+     overlay = true,
+     initial_capital = 10000,
+     currency = currency.USD,
+     pyramiding = 0,
+     commission_type = strategy.commission.percent,
+     commission_value = 0.1,
+     slippage = 1,
+     process_orders_on_close = false,
+     calc_on_every_tick = false,
+     calc_on_order_fills = false,
+     fill_orders_on_standard_ohlc = true,
+     margin_long = 50,
+     margin_short = 50
+)
+
+// Crypto-only research strategy for liquid spot feeds and perpetual futures.
+// Signals use completed chart bars. Weekly values use the previous completed
+// weekly bar; the [1] offset paired with lookahead_on prevents future leakage.
+
+// ── Backtest and market mode ────────────────────────────────────────────────
+int backtestStart = input.time(timestamp("2018-01-01 00:00 +0000"), "Backtest start", group = "Backtest and market")
+bool allowLong = input.bool(true, "Allow long positions", group = "Backtest and market")
+bool allowShort = input.bool(true, "Allow short positions (perpetuals only)", group = "Backtest and market")
+int minimumHistoryBars = input.int(250, "Minimum history bars before trading", minval = 100, maxval = 1000, group = "Backtest and market")
+int minimumBarsBetweenEntries = input.int(7, "Minimum bars between entries", minval = 0, maxval = 100, group = "Backtest and market")
+float contractPointValueOverride = input.float(0.0, "Contract point value override (0 = symbol default)", minval = 0.0, step = 0.0001, group = "Backtest and market")
+bool showDashboard = input.bool(true, "Show performance dashboard", group = "Backtest and market")
+
+// ── Volatility-normalized position sizing ──────────────────────────────────
+float riskPerTradePercent = input.float(3.0, "Equity risk per position (%)", minval = 0.25, maxval = 10.0, step = 0.25, group = "Position sizing")
+float maximumExposurePercent = input.float(100.0, "Maximum position exposure (% of equity)", minval = 5.0, maxval = 200.0, step = 5.0, group = "Position sizing")
+float minimumStopLossPercent = input.float(4.0, "Minimum initial stop distance (%)", minval = 0.5, maxval = 20.0, step = 0.5, group = "Position sizing")
+float maximumStopLossPercent = input.float(12.0, "Maximum initial stop distance (%)", minval = 2.0, maxval = 40.0, step = 0.5, group = "Position sizing")
+float atrStopMultiplier = input.float(2.8, "Initial ATR stop multiplier", minval = 0.5, maxval = 10.0, step = 0.1, group = "Position sizing")
+
+// ── Confirmed weekly market cycle ──────────────────────────────────────────
+int cycleFastLength = input.int(10, "Weekly cycle fast EMA", minval = 4, maxval = 60, group = "Market cycle")
+int cycleSlowLength = input.int(30, "Weekly cycle slow EMA", minval = 10, maxval = 100, group = "Market cycle")
+int cycleSlopeWeeks = input.int(3, "Weekly slow-EMA slope lookback", minval = 1, maxval = 20, group = "Market cycle")
+
+// ── Chart trend and entry quality ──────────────────────────────────────────
+int fastEmaLength = input.int(21, "Fast trend EMA", minval = 5, maxval = 100, group = "Trend and entry")
+int setupEmaLength = input.int(55, "Setup EMA", minval = 10, maxval = 200, group = "Trend and entry")
+int trendEmaLength = input.int(200, "Major trend EMA", minval = 50, maxval = 400, group = "Trend and entry")
+int pullbackLookback = input.int(12, "Pullback lookback", minval = 2, maxval = 50, group = "Trend and entry")
+float pullbackToleranceAtr = input.float(0.35, "EMA-touch tolerance (ATR)", minval = 0.0, maxval = 3.0, step = 0.05, group = "Trend and entry")
+int triggerWindow = input.int(3, "Bars allowed after reclaim", minval = 0, maxval = 10, group = "Trend and entry")
+int cycleEntryWindow = input.int(8, "Bars allowed after cycle turn", minval = 0, maxval = 30, group = "Trend and entry")
+float maximumEntryExtensionAtr = input.float(1.4, "Maximum entry extension (ATR)", minval = 0.25, maxval = 5.0, step = 0.1, group = "Trend and entry")
+
+int rsiLength = input.int(14, "RSI length", minval = 5, maxval = 50, group = "Momentum and filters")
+float longRsiTrigger = input.float(50.0, "Long RSI recovery level", minval = 35.0, maxval = 65.0, step = 1.0, group = "Momentum and filters")
+float longRsiCeiling = input.float(69.0, "Long entry RSI ceiling", minval = 50.0, maxval = 85.0, step = 1.0, group = "Momentum and filters")
+float shortRsiTrigger = input.float(50.0, "Short RSI rollover level", minval = 35.0, maxval = 65.0, step = 1.0, group = "Momentum and filters")
+float shortRsiFloor = input.float(31.0, "Short entry RSI floor", minval = 15.0, maxval = 50.0, step = 1.0, group = "Momentum and filters")
+int macdFastLength = input.int(12, "MACD fast length", minval = 3, maxval = 50, group = "Momentum and filters")
+int macdSlowLength = input.int(26, "MACD slow length", minval = 5, maxval = 100, group = "Momentum and filters")
+int macdSignalLength = input.int(9, "MACD signal length", minval = 2, maxval = 50, group = "Momentum and filters")
+int diLength = input.int(14, "DI length", minval = 5, maxval = 50, group = "Momentum and filters")
+int adxSmoothing = input.int(14, "ADX smoothing", minval = 5, maxval = 50, group = "Momentum and filters")
+float entryAdxFloor = input.float(17.0, "Entry ADX floor", minval = 5.0, maxval = 50.0, step = 1.0, group = "Momentum and filters")
+int minimumMomentumConfirmations = input.int(2, "Required momentum confirmations", minval = 1, maxval = 3, group = "Momentum and filters")
+bool useVolumeFilter = input.bool(true, "Use volume filter", group = "Momentum and filters")
+int volumeLength = input.int(20, "Volume average length", minval = 5, maxval = 100, group = "Momentum and filters")
+float volumeMultiplier = input.float(0.80, "Minimum volume / average", minval = 0.25, maxval = 3.0, step = 0.05, group = "Momentum and filters")
+int atrLength = input.int(14, "ATR length", minval = 5, maxval = 100, group = "Momentum and filters")
+float minimumAtrPercent = input.float(1.0, "Minimum ATR (%)", minval = 0.0, maxval = 20.0, step = 0.25, group = "Momentum and filters")
+float maximumAtrPercent = input.float(14.0, "Maximum ATR (%)", minval = 1.0, maxval = 50.0, step = 0.5, group = "Momentum and filters")
+
+// ── Smart Hold and profit protection ───────────────────────────────────────
+float trailingActivationPercent = input.float(12.0, "Trailing activation profit (%)", minval = 1.0, maxval = 100.0, step = 1.0, group = "Smart Hold and exits")
+float trailingAtrMultiplier = input.float(3.8, "Trailing distance (ATR)", minval = 0.5, maxval = 12.0, step = 0.1, group = "Smart Hold and exits")
+float strongTrendTrailBoost = input.float(1.35, "Strong-trend trail width multiplier", minval = 1.0, maxval = 3.0, step = 0.05, group = "Smart Hold and exits")
+float breakEvenActivationPercent = input.float(8.0, "Break-even activation profit (%)", minval = 1.0, maxval = 100.0, step = 1.0, group = "Smart Hold and exits")
+float breakEvenBufferPercent = input.float(0.30, "Break-even profit buffer (%)", minval = 0.0, maxval = 10.0, step = 0.1, group = "Smart Hold and exits")
+bool usePartialExit = input.bool(false, "Use one partial take-profit", group = "Smart Hold and exits")
+float takeProfitPercent = input.float(25.0, "Take-profit level (%)", minval = 2.0, maxval = 200.0, step = 1.0, group = "Smart Hold and exits")
+float partialExitPercent = input.float(25.0, "Partial exit size (%)", minval = 5.0, maxval = 75.0, step = 5.0, group = "Smart Hold and exits")
+bool useFullTakeProfit = input.bool(false, "Use full take-profit when partial exit is off", group = "Smart Hold and exits")
+float smartHoldAdxFloor = input.float(22.0, "Smart Hold ADX floor", minval = 5.0, maxval = 60.0, step = 1.0, group = "Smart Hold and exits")
+float smartHoldLongRsiFloor = input.float(52.0, "Smart Hold long RSI floor", minval = 35.0, maxval = 75.0, step = 1.0, group = "Smart Hold and exits")
+float smartHoldShortRsiCeiling = input.float(48.0, "Smart Hold short RSI ceiling", minval = 25.0, maxval = 65.0, step = 1.0, group = "Smart Hold and exits")
+float longExitRsi = input.float(44.0, "Long momentum deterioration RSI", minval = 20.0, maxval = 60.0, step = 1.0, group = "Smart Hold and exits")
+float shortExitRsi = input.float(56.0, "Short momentum deterioration RSI", minval = 40.0, maxval = 80.0, step = 1.0, group = "Smart Hold and exits")
+float exhaustionHighRsi = input.float(78.0, "Long exhaustion RSI", minval = 60.0, maxval = 95.0, step = 1.0, group = "Smart Hold and exits")
+float exhaustionLowRsi = input.float(22.0, "Short exhaustion RSI", minval = 5.0, maxval = 40.0, step = 1.0, group = "Smart Hold and exits")
+int supportLookback = input.int(20, "Major structure lookback", minval = 5, maxval = 100, group = "Smart Hold and exits")
+int exitConfirmations = input.int(2, "Deterioration signals required", minval = 2, maxval = 4, group = "Smart Hold and exits")
+int maximumHoldingBars = input.int(365, "Maximum holding bars (0 disables)", minval = 0, maxval = 2000, group = "Smart Hold and exits")
+
+// ── Portfolio circuit breakers ─────────────────────────────────────────────
+float maximumDrawdownPercent = input.float(25.0, "Maximum strategy drawdown (%)", minval = 5.0, maxval = 50.0, step = 1.0, group = "Portfolio protection")
+int maximumConsecutiveLosses = input.int(4, "Maximum consecutive losing positions", minval = 1, maxval = 10, group = "Portfolio protection")
+int lossStreakCooldownBars = input.int(30, "Loss-streak cooldown bars", minval = 1, maxval = 365, group = "Portfolio protection")
+
+strategy.risk.max_drawdown(maximumDrawdownPercent, strategy.percent_of_equity)
+
+// ── Confirmed higher-timeframe regime ──────────────────────────────────────
+float confirmedWeeklyClose = request.security(
+     syminfo.tickerid,
+     "1W",
+     close[1],
+     lookahead = barmerge.lookahead_on
+)
+float confirmedWeeklyFastEma = request.security(
+     syminfo.tickerid,
+     "1W",
+     ta.ema(close, cycleFastLength)[1],
+     lookahead = barmerge.lookahead_on
+)
+float confirmedWeeklySlowEma = request.security(
+     syminfo.tickerid,
+     "1W",
+     ta.ema(close, cycleSlowLength)[1],
+     lookahead = barmerge.lookahead_on
+)
+float confirmedWeeklySlowEmaPast = request.security(
+     syminfo.tickerid,
+     "1W",
+     ta.ema(close, cycleSlowLength)[1 + cycleSlopeWeeks],
+     lookahead = barmerge.lookahead_on
+)
+
+// ── Chart-timeframe indicators ─────────────────────────────────────────────
+float fastEma = ta.ema(close, fastEmaLength)
+float setupEma = ta.ema(close, setupEmaLength)
+float trendEma = ta.ema(close, trendEmaLength)
+float currentAtr = ta.atr(atrLength)
+float atrPercent = close > 0.0 ? currentAtr / close * 100.0 : na
+float currentRsi = ta.rsi(close, rsiLength)
+float macdLine = ta.ema(close, macdFastLength) - ta.ema(close, macdSlowLength)
+float macdSignal = ta.ema(macdLine, macdSignalLength)
+float macdHistogram = macdLine - macdSignal
+[plusDi, minusDi, adxValue] = ta.dmi(diLength, adxSmoothing)
+float averageVolume = ta.sma(volume, volumeLength)
+float priorMajorSupport = ta.lowest(low, supportLookback)[1]
+float priorMajorResistance = ta.highest(high, supportLookback)[1]
+
+bool cycleDataReady = not na(confirmedWeeklySlowEmaPast)
+bool bullishCycle = cycleDataReady and confirmedWeeklyClose > confirmedWeeklySlowEma and confirmedWeeklyFastEma > confirmedWeeklySlowEma and confirmedWeeklySlowEma > confirmedWeeklySlowEmaPast
+bool bearishCycle = cycleDataReady and confirmedWeeklyClose < confirmedWeeklySlowEma and confirmedWeeklyFastEma < confirmedWeeklySlowEma and confirmedWeeklySlowEma < confirmedWeeklySlowEmaPast
+bool bullishCycleTurn = bullishCycle and not bullishCycle[1]
+bool bearishCycleTurn = bearishCycle and not bearishCycle[1]
+int barsSinceBullishCycleTurn = ta.barssince(bullishCycleTurn)
+int barsSinceBearishCycleTurn = ta.barssince(bearishCycleTurn)
+bool recentBullishCycleTurn = not na(barsSinceBullishCycleTurn) and barsSinceBullishCycleTurn <= cycleEntryWindow
+bool recentBearishCycleTurn = not na(barsSinceBearishCycleTurn) and barsSinceBearishCycleTurn <= cycleEntryWindow
+
+bool bullishTrend = fastEma > setupEma and setupEma > trendEma and close > trendEma
+bool bearishTrend = fastEma < setupEma and setupEma < trendEma and close < trendEma
+bool longPullbackSeen = ta.lowest(low, pullbackLookback) <= fastEma + currentAtr * pullbackToleranceAtr
+bool shortPullbackSeen = ta.highest(high, pullbackLookback) >= fastEma - currentAtr * pullbackToleranceAtr
+bool longEmaReclaim = ta.crossover(close, fastEma)
+bool shortEmaReclaim = ta.crossunder(close, fastEma)
+bool longRsiRecovery = ta.crossover(currentRsi, longRsiTrigger)
+bool shortRsiRollover = ta.crossunder(currentRsi, shortRsiTrigger)
+int barsSinceLongEmaReclaim = ta.barssince(longEmaReclaim)
+int barsSinceShortEmaReclaim = ta.barssince(shortEmaReclaim)
+int barsSinceLongRsiRecovery = ta.barssince(longRsiRecovery)
+int barsSinceShortRsiRollover = ta.barssince(shortRsiRollover)
+bool recentLongReclaim = (not na(barsSinceLongEmaReclaim) and barsSinceLongEmaReclaim <= triggerWindow) or (not na(barsSinceLongRsiRecovery) and barsSinceLongRsiRecovery <= triggerWindow)
+bool recentShortReclaim = (not na(barsSinceShortEmaReclaim) and barsSinceShortEmaReclaim <= triggerWindow) or (not na(barsSinceShortRsiRollover) and barsSinceShortRsiRollover <= triggerWindow)
+bool longEntryTrigger = longPullbackSeen and (recentLongReclaim or recentBullishCycleTurn)
+bool shortEntryTrigger = shortPullbackSeen and (recentShortReclaim or recentBearishCycleTurn)
+bool longEntryNotExtended = close <= fastEma + currentAtr * maximumEntryExtensionAtr
+bool shortEntryNotExtended = close >= fastEma - currentAtr * maximumEntryExtensionAtr
+
+bool longRsiMomentum = currentRsi >= longRsiTrigger and currentRsi <= longRsiCeiling and currentRsi > currentRsi[1]
+bool shortRsiMomentum = currentRsi <= shortRsiTrigger and currentRsi >= shortRsiFloor and currentRsi < currentRsi[1]
+bool longMacdMomentum = macdHistogram > macdHistogram[1]
+bool shortMacdMomentum = macdHistogram < macdHistogram[1]
+bool longDirectionalMomentum = plusDi > minusDi and adxValue >= entryAdxFloor
+bool shortDirectionalMomentum = minusDi > plusDi and adxValue >= entryAdxFloor
+int longMomentumScore = (longRsiMomentum ? 1 : 0) + (longMacdMomentum ? 1 : 0) + (longDirectionalMomentum ? 1 : 0)
+int shortMomentumScore = (shortRsiMomentum ? 1 : 0) + (shortMacdMomentum ? 1 : 0) + (shortDirectionalMomentum ? 1 : 0)
+bool volumeConfirmed = not useVolumeFilter or (not na(averageVolume) and volume >= averageVolume * volumeMultiplier)
+bool volatilityConfirmed = not na(atrPercent) and atrPercent >= minimumAtrPercent and atrPercent <= maximumAtrPercent
+
+// ── Position state and performance accounting ──────────────────────────────
+var float activeStop = na
+var float pendingEntryStopDistance = na
+var float highestSinceEntry = na
+var float lowestSinceEntry = na
+var float netProfitAtEntry = na
+var int entryBarIndex = na
+var int lastExitBarIndex = na
+var int consecutiveLosses = 0
+var int lossCooldownUntil = na
+var int completedPositions = 0
+var int winningPositions = 0
+var float grossPositionProfit = 0.0
+var float grossPositionLoss = 0.0
+var bool partialTaken = false
+
+bool longPositionJustOpened = strategy.position_size > 0.0 and strategy.position_size[1] <= 0.0
+bool shortPositionJustOpened = strategy.position_size < 0.0 and strategy.position_size[1] >= 0.0
+bool positionJustClosed = strategy.position_size == 0.0 and strategy.position_size[1] != 0.0
+bool positionPartiallyReduced = strategy.position_size != 0.0 and math.abs(strategy.position_size) < math.abs(strategy.position_size[1])
+
+if longPositionJustOpened or shortPositionJustOpened
+    float entryPrice = strategy.position_avg_price
+    float boundedStopDistance = math.min(
+         math.max(nz(pendingEntryStopDistance, currentAtr * atrStopMultiplier), entryPrice * minimumStopLossPercent / 100.0),
+         entryPrice * maximumStopLossPercent / 100.0
+    )
+    activeStop := longPositionJustOpened ? entryPrice - boundedStopDistance : entryPrice + boundedStopDistance
+    if longPositionJustOpened
+        strategy.cancel("Long entry protection")
+    else
+        strategy.cancel("Short entry protection")
+    highestSinceEntry := high
+    lowestSinceEntry := low
+    netProfitAtEntry := strategy.netprofit
+    entryBarIndex := bar_index
+    partialTaken := false
+
+if positionPartiallyReduced
+    partialTaken := true
+
+if positionJustClosed
+    float completedPositionProfit = strategy.netprofit - nz(netProfitAtEntry, strategy.netprofit)
+    completedPositions += 1
+    if completedPositionProfit < 0.0
+        grossPositionLoss += math.abs(completedPositionProfit)
+        consecutiveLosses += 1
+        if consecutiveLosses >= maximumConsecutiveLosses
+            lossCooldownUntil := bar_index + lossStreakCooldownBars
+            consecutiveLosses := 0
+    else
+        grossPositionProfit += completedPositionProfit
+        winningPositions += 1
+        consecutiveLosses := 0
+    lastExitBarIndex := bar_index
+    activeStop := na
+    pendingEntryStopDistance := na
+    highestSinceEntry := na
+    lowestSinceEntry := na
+    netProfitAtEntry := na
+    entryBarIndex := na
+    partialTaken := false
+
+bool lossCooldownActive = not na(lossCooldownUntil) and bar_index <= lossCooldownUntil
+bool reentryDelayComplete = na(lastExitBarIndex) or bar_index - lastExitBarIndex >= minimumBarsBetweenEntries
+
+float effectivePointValue = math.max(contractPointValueOverride > 0.0 ? contractPointValueOverride : syminfo.pointvalue, 0.00000001)
+float minimumQuantity = math.max(syminfo.mincontract, 0.00000001)
+float plannedStopDistance = math.min(
+     math.max(currentAtr * atrStopMultiplier, close * minimumStopLossPercent / 100.0),
+     close * maximumStopLossPercent / 100.0
+)
+float riskCapital = math.max(strategy.equity, 0.0) * riskPerTradePercent / 100.0
+float riskSizedQuantity = plannedStopDistance > 0.0 ? riskCapital / (plannedStopDistance * effectivePointValue) : 0.0
+float exposureSizedQuantity = close > 0.0 ? math.max(strategy.equity, 0.0) * maximumExposurePercent / 100.0 / (close * effectivePointValue) : 0.0
+float rawOrderQuantity = math.min(riskSizedQuantity, exposureSizedQuantity)
+float orderQuantity = math.floor(rawOrderQuantity / minimumQuantity) * minimumQuantity
+
+bool entryDataReady = bar_index >= minimumHistoryBars and not na(trendEma) and not na(currentAtr) and not na(adxValue) and orderQuantity >= minimumQuantity
+bool entryAllowed = time >= backtestStart and strategy.position_size == 0.0 and not lossCooldownActive and reentryDelayComplete
+bool longEntrySignal = barstate.isconfirmed and allowLong and entryDataReady and entryAllowed and bullishCycle and bullishTrend and longEntryTrigger and longEntryNotExtended and longMomentumScore >= minimumMomentumConfirmations and volumeConfirmed and volatilityConfirmed
+bool shortEntrySignal = barstate.isconfirmed and allowShort and entryDataReady and entryAllowed and bearishCycle and bearishTrend and shortEntryTrigger and shortEntryNotExtended and shortMomentumScore >= minimumMomentumConfirmations and volumeConfirmed and volatilityConfirmed
+
+orderMessage(string action, float quantity, float referencePrice) =>
+    "{\"version\":\"0.1\",\"strategy\":\"crypto_regime_compounder\",\"ticker\":\"" + syminfo.tickerid +
+     "\",\"action\":\"" + action +
+     "\",\"quantity\":\"" + str.tostring(quantity) +
+     "\",\"reference_price\":\"" + str.tostring(referencePrice, format.mintick) +
+     "\",\"bar_time\":\"" + str.tostring(time) + "\"}"
+
+if longEntrySignal
+    float plannedLongStop = close - plannedStopDistance
+    pendingEntryStopDistance := plannedStopDistance
+    strategy.entry("Long", strategy.long, qty = orderQuantity, alert_message = orderMessage("ENTER_LONG", orderQuantity, plannedLongStop))
+    strategy.exit("Long entry protection", from_entry = "Long", stop = plannedLongStop, alert_message = orderMessage("EXIT_LONG_ENTRY_STOP", orderQuantity, plannedLongStop))
+
+if shortEntrySignal
+    float plannedShortStop = close + plannedStopDistance
+    pendingEntryStopDistance := plannedStopDistance
+    strategy.entry("Short", strategy.short, qty = orderQuantity, alert_message = orderMessage("ENTER_SHORT", orderQuantity, plannedShortStop))
+    strategy.exit("Short entry protection", from_entry = "Short", stop = plannedShortStop, alert_message = orderMessage("EXIT_SHORT_ENTRY_STOP", orderQuantity, plannedShortStop))
+
+// ── Symmetric Smart Hold, trailing protection, and exits ───────────────────
+bool inLongPosition = strategy.position_size > 0.0
+bool inShortPosition = strategy.position_size < 0.0
+bool inPosition = inLongPosition or inShortPosition
+float positionDirection = inLongPosition ? 1.0 : inShortPosition ? -1.0 : 0.0
+float openProfitPercent = inPosition ? positionDirection * (close / strategy.position_avg_price - 1.0) * 100.0 : 0.0
+bool strongLongStructure = inLongPosition and bullishCycle and close > fastEma and fastEma > setupEma and setupEma > trendEma and fastEma >= fastEma[1]
+bool strongShortStructure = inShortPosition and bearishCycle and close < fastEma and fastEma < setupEma and setupEma < trendEma and fastEma <= fastEma[1]
+bool strongLongMomentum = adxValue >= smartHoldAdxFloor and plusDi > minusDi and currentRsi >= smartHoldLongRsiFloor
+bool strongShortMomentum = adxValue >= smartHoldAdxFloor and minusDi > plusDi and currentRsi <= smartHoldShortRsiCeiling
+bool smartHoldActive = openProfitPercent > 0.0 and ((strongLongStructure and strongLongMomentum) or (strongShortStructure and strongShortMomentum))
+
+if inPosition
+    highestSinceEntry := math.max(nz(highestSinceEntry, high), high)
+    lowestSinceEntry := math.min(nz(lowestSinceEntry, low), low)
+
+    if openProfitPercent >= breakEvenActivationPercent
+        float breakEvenStop = inLongPosition ? strategy.position_avg_price * (1.0 + breakEvenBufferPercent / 100.0) : strategy.position_avg_price * (1.0 - breakEvenBufferPercent / 100.0)
+        activeStop := inLongPosition ? math.max(nz(activeStop, breakEvenStop), breakEvenStop) : math.min(nz(activeStop, breakEvenStop), breakEvenStop)
+
+    if openProfitPercent >= trailingActivationPercent
+        float effectiveTrailMultiplier = trailingAtrMultiplier * (smartHoldActive ? strongTrendTrailBoost : 1.0)
+        float trailingStop = inLongPosition ? highestSinceEntry - currentAtr * effectiveTrailMultiplier : lowestSinceEntry + currentAtr * effectiveTrailMultiplier
+        activeStop := inLongPosition ? math.max(nz(activeStop, trailingStop), trailingStop) : math.min(nz(activeStop, trailingStop), trailingStop)
+
+    float takeProfitPrice = inLongPosition ? strategy.position_avg_price * (1.0 + takeProfitPercent / 100.0) : strategy.position_avg_price * (1.0 - takeProfitPercent / 100.0)
+    if inLongPosition
+        if usePartialExit
+            if not partialTaken
+                strategy.exit("Long partial", from_entry = "Long", limit = takeProfitPrice, stop = activeStop, qty_percent = partialExitPercent, alert_message = orderMessage("EXIT_LONG_PARTIAL_OR_STOP", math.abs(strategy.position_size) * partialExitPercent / 100.0, takeProfitPrice))
+            strategy.exit("Long runner", from_entry = "Long", stop = activeStop, qty_percent = partialTaken ? 100.0 : 100.0 - partialExitPercent, alert_message = orderMessage("EXIT_LONG_RUNNER_STOP", math.abs(strategy.position_size), activeStop))
+        else
+            float longFullTakeProfit = useFullTakeProfit ? takeProfitPrice : na
+            strategy.exit("Long protective exit", from_entry = "Long", limit = longFullTakeProfit, stop = activeStop, alert_message = orderMessage("EXIT_LONG_PROTECTIVE", math.abs(strategy.position_size), activeStop))
+    else
+        if usePartialExit
+            if not partialTaken
+                strategy.exit("Short partial", from_entry = "Short", limit = takeProfitPrice, stop = activeStop, qty_percent = partialExitPercent, alert_message = orderMessage("EXIT_SHORT_PARTIAL_OR_STOP", math.abs(strategy.position_size) * partialExitPercent / 100.0, takeProfitPrice))
+            strategy.exit("Short runner", from_entry = "Short", stop = activeStop, qty_percent = partialTaken ? 100.0 : 100.0 - partialExitPercent, alert_message = orderMessage("EXIT_SHORT_RUNNER_STOP", math.abs(strategy.position_size), activeStop))
+        else
+            float shortFullTakeProfit = useFullTakeProfit ? takeProfitPrice : na
+            strategy.exit("Short protective exit", from_entry = "Short", limit = shortFullTakeProfit, stop = activeStop, alert_message = orderMessage("EXIT_SHORT_PROTECTIVE", math.abs(strategy.position_size), activeStop))
+
+bool longTrendDeterioration = close < setupEma and setupEma < setupEma[1]
+bool shortTrendDeterioration = close > setupEma and setupEma > setupEma[1]
+bool longMomentumDeterioration = currentRsi < longExitRsi and minusDi > plusDi
+bool shortMomentumDeterioration = currentRsi > shortExitRsi and plusDi > minusDi
+bool longCycleDeterioration = confirmedWeeklyClose < confirmedWeeklySlowEma
+bool shortCycleDeterioration = confirmedWeeklyClose > confirmedWeeklySlowEma
+bool longExhaustion = currentRsi[1] >= exhaustionHighRsi and currentRsi < exhaustionHighRsi and close < close[1]
+bool shortExhaustion = currentRsi[1] <= exhaustionLowRsi and currentRsi > exhaustionLowRsi and close > close[1]
+int longDeteriorationScore = (longTrendDeterioration ? 1 : 0) + (longMomentumDeterioration ? 1 : 0) + (longCycleDeterioration ? 1 : 0) + (longExhaustion ? 1 : 0)
+int shortDeteriorationScore = (shortTrendDeterioration ? 1 : 0) + (shortMomentumDeterioration ? 1 : 0) + (shortCycleDeterioration ? 1 : 0) + (shortExhaustion ? 1 : 0)
+bool longSupportBreakdown = inLongPosition and not na(priorMajorSupport) and close < priorMajorSupport
+bool shortResistanceBreakout = inShortPosition and not na(priorMajorResistance) and close > priorMajorResistance
+int holdingBars = inPosition and not na(entryBarIndex) ? bar_index - entryBarIndex : 0
+bool longMaximumHoldingPeriodReached = inLongPosition and maximumHoldingBars > 0 and holdingBars >= maximumHoldingBars
+bool shortMaximumHoldingPeriodReached = inShortPosition and maximumHoldingBars > 0 and holdingBars >= maximumHoldingBars
+bool confirmedLongDeterioration = inLongPosition and longDeteriorationScore >= exitConfirmations and not smartHoldActive
+bool confirmedShortDeterioration = inShortPosition and shortDeteriorationScore >= exitConfirmations and not smartHoldActive
+bool longMarketExitSignal = barstate.isconfirmed and (longSupportBreakdown or longMaximumHoldingPeriodReached or confirmedLongDeterioration)
+bool shortMarketExitSignal = barstate.isconfirmed and (shortResistanceBreakout or shortMaximumHoldingPeriodReached or confirmedShortDeterioration)
+
+if longMarketExitSignal
+    string longExitReason = longSupportBreakdown ? "Major support breakdown" : longMaximumHoldingPeriodReached ? "Maximum holding period" : "Confirmed long deterioration"
+    strategy.close("Long", comment = longExitReason, alert_message = orderMessage("EXIT_LONG_MARKET", math.abs(strategy.position_size), close))
+
+if shortMarketExitSignal
+    string shortExitReason = shortResistanceBreakout ? "Major resistance breakout" : shortMaximumHoldingPeriodReached ? "Maximum holding period" : "Confirmed short deterioration"
+    strategy.close("Short", comment = shortExitReason, alert_message = orderMessage("EXIT_SHORT_MARKET", math.abs(strategy.position_size), close))
+
+// ── Visuals and compact diagnostics ─────────────────────────────────────────
+plot(fastEma, "Fast EMA", color = color.aqua, linewidth = 2)
+plot(setupEma, "Setup EMA", color = color.blue, linewidth = 2)
+plot(trendEma, "Major trend EMA", color = color.orange, linewidth = 2)
+plot(confirmedWeeklySlowEma, "Confirmed weekly slow EMA", color = color.new(color.purple, 15), linewidth = 2, style = plot.style_stepline)
+plot(inPosition ? activeStop : na, "Active protective stop", color = color.red, linewidth = 2, style = plot.style_linebr)
+plotshape(longEntrySignal, title = "Long buy signal", text = "BUY", location = location.belowbar, color = color.lime, style = shape.labelup, textcolor = color.black, size = size.tiny)
+plotshape(shortEntrySignal, title = "Short sell signal", text = "SHORT", location = location.abovebar, color = color.fuchsia, style = shape.labeldown, textcolor = color.white, size = size.tiny)
+plotshape(longMarketExitSignal, title = "Long exit signal", text = "SELL", location = location.abovebar, color = color.red, style = shape.labeldown, textcolor = color.white, size = size.tiny)
+plotshape(shortMarketExitSignal, title = "Short exit signal", text = "COVER", location = location.belowbar, color = color.orange, style = shape.labelup, textcolor = color.black, size = size.tiny)
+bgcolor(smartHoldActive ? color.new(color.green, 89) : bullishCycle ? color.new(color.teal, 94) : bearishCycle ? color.new(color.red, 94) : color.new(color.gray, 96), title = "Regime / Smart Hold state")
+
+float profitFactor = grossPositionLoss > 0.0 ? grossPositionProfit / grossPositionLoss : na
+float winRate = completedPositions > 0 ? winningPositions * 100.0 / completedPositions : na
+float profitToDrawdown = strategy.max_drawdown_percent > 0.0 ? strategy.netprofit_percent / strategy.max_drawdown_percent : na
+string regimeText = bullishCycle ? "BULL" : bearishCycle ? "BEAR" : "NEUTRAL"
+string positionText = inLongPosition ? "LONG" : inShortPosition ? "SHORT" : "FLAT"
+var table dashboard = table.new(position.top_right, 2, 9, border_width = 1)
+if showDashboard and barstate.islast
+    color headerColor = color.new(color.blue, 25)
+    table.cell(dashboard, 0, 0, "Metric", bgcolor = headerColor, text_color = color.white)
+    table.cell(dashboard, 1, 0, "Value", bgcolor = headerColor, text_color = color.white)
+    table.cell(dashboard, 0, 1, "Weekly regime")
+    table.cell(dashboard, 1, 1, regimeText, text_color = bullishCycle ? color.lime : bearishCycle ? color.red : color.orange)
+    table.cell(dashboard, 0, 2, "Position / Hold")
+    table.cell(dashboard, 1, 2, positionText + " / " + (smartHoldActive ? "SMART" : "normal"), text_color = smartHoldActive ? color.lime : chart.fg_color)
+    table.cell(dashboard, 0, 3, "Net profit")
+    table.cell(dashboard, 1, 3, str.tostring(strategy.netprofit_percent, "#.##") + "%")
+    table.cell(dashboard, 0, 4, "Max drawdown")
+    table.cell(dashboard, 1, 4, str.tostring(strategy.max_drawdown_percent, "#.##") + "%")
+    table.cell(dashboard, 0, 5, "Profit factor")
+    table.cell(dashboard, 1, 5, str.tostring(profitFactor, "#.##"))
+    table.cell(dashboard, 0, 6, "Win rate / positions")
+    table.cell(dashboard, 1, 6, str.tostring(winRate, "#.##") + "% / " + str.tostring(completedPositions))
+    table.cell(dashboard, 0, 7, "Profit / drawdown")
+    table.cell(dashboard, 1, 7, str.tostring(profitToDrawdown, "#.##"))
+    table.cell(dashboard, 0, 8, "Risk / exposure")
+    table.cell(dashboard, 1, 8, str.tostring(riskPerTradePercent, "#.##") + "% / " + str.tostring(maximumExposurePercent, "#.##") + "%")
+
+if barstate.islastconfirmedhistory and completedPositions < 2
+    label.new(
+         bar_index,
+         high,
+         "Fewer than 2 completed positions. New listings remain in probation until enough confirmed history exists.",
+         color = color.orange,
+         textcolor = color.black,
+         style = label.style_label_down
+    )
