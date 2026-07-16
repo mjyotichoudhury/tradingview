@@ -25,5 +25,8 @@ jobs:
       - name: Validate Pine strategy contract
         run: python scripts/validate_strategy.py strategies/gold_trend_breakout.pine
 
+      - name: Validate crypto strategy contract
+        run: python scripts/validate_crypto_strategy.py strategies/crypto_cycle_smart_hold.pine
+
       - name: Run regression tests
         run: python -m unittest discover -s tests -v

@@ -1,66 +1,69 @@
-# Robust Gold Trend Breakout
+# TradingView Strategy Research Lab
 
-A reviewable TradingView Pine Script v6 strategy for medium-frequency gold and
-energy research. The first version implements a symmetric 55-bar breakout,
-confirmed daily trend filter, volatility-scaled risk sizing, ATR protection,
-channel exits, and hard strategy-level loss controls.
+Reviewable Pine Script v6 strategies with explicit execution assumptions,
+anti-repainting checks, risk controls, and evidence-based promotion gates.
 
 > **Research only.** This repository does not connect to a broker or place live
 > trades. Historical results do not guarantee future performance.
 
-## What is included
+## Strategies
 
-- `strategies/gold_trend_breakout.pine` — Pine Script v6 strategy.
-- `scripts/validate_strategy.py` — deterministic anti-repainting and safety
-  contract checks.
-- `tests/` — regression tests for the repository validator.
-- `.github/workflows/ci.yml` — validation on every push and pull request.
-- `docs/validation.md` — the backtest and promotion methodology.
+### Crypto Cycle Pullback + Smart Hold
 
-## Strategy defaults
+`strategies/crypto_cycle_smart_hold.pine` is a long-only crypto strategy built
+for full market cycles and low turnover. It combines a confirmed weekly cycle,
+daily trend structure, pullback/reclaim entries, momentum scoring, volume and
+volatility filters, and an adaptive Smart Hold runner.
 
 | Control | Default |
 | --- | ---: |
-| Chart timeframe | 4 hours |
-| Breakout / channel exit | 55 / 20 bars |
-| Higher-timeframe filter | Previous confirmed daily EMA(200) |
-| Emergency stop | 2.5 × ATR(20) |
-| Equity risk per entry | 0.35% |
-| Target annualized volatility | 10% |
-| Gross leverage cap | 2× |
-| Intraday loss halt | 1.5% |
-| Maximum drawdown halt | 12% |
+| Primary chart timeframe | 1 day |
+| Backtest start | 1 January 2018 |
+| Commission / slippage | 0.1% / 1 tick |
+| Position size | 30% of equity |
+| Weekly cycle EMA | 20 / 40 |
+| Pullback / trend EMA | 50 / 200 |
+| Initial protection | tighter of 12% or 3 ATR |
+| Partial profit | 25% at +20% |
+| Break-even / trail activation | +10% / +15% |
+| Maximum strategy drawdown | 20% |
+| Loss-streak protection | 3 losses, then 30-bar cooldown |
 
-The values above are starting hypotheses, not optimized claims. Test broad
-parameter neighborhoods and retain the locked out-of-sample result.
+Use `docs/crypto_optimization.md` for symbols, parameter neighborhoods,
+walk-forward testing, evaluation metrics, and known weaknesses.
+
+### Gold Trend Breakout
+
+`strategies/gold_trend_breakout.pine` is a symmetric 55-bar breakout research
+baseline with a confirmed daily trend filter, volatility-scaled sizing, ATR
+protection, channel exits, and hard loss controls. Its primary timeframe is four
+hours. See `docs/validation.md` for its validation and promotion methodology.
 
 ## Use in TradingView
 
-1. Open TradingView **Pine Editor** and paste
-   `strategies/gold_trend_breakout.pine`.
-2. Add it to a **4-hour** chart. Start with one exposure family: MCX
-   GOLD/GOLDM or XAUUSD, not both as independent positions.
-3. Set realistic commission, slippage, point value, minimum contract size, and
-   annualization bars for the instrument and data feed.
-4. Inspect long and short results separately and follow `docs/validation.md`.
-5. Create an order-fill alert only after paper validation. Use
+1. Open **Pine Editor**, paste the selected `.pine` file, save it, and click
+   **Add to chart**.
+2. Use standard candles and the intended exchange feed.
+3. Confirm the Properties tab shows the expected commission and slippage.
+4. Review the Overview, Performance Summary, List of Trades, and Properties.
+5. Export and compare walk-forward results before changing defaults.
+6. Create an order-fill alert only after paper validation. Use
    `{{strategy.order.alert_message}}` as the alert message.
 
 ## Local validation
 
 ```bash
 python scripts/validate_strategy.py strategies/gold_trend_breakout.pine
+python scripts/validate_crypto_strategy.py strategies/crypto_cycle_smart_hold.pine
 python -m unittest discover -s tests -v
 ```
 
-The local checks cannot replace compilation in TradingView. They enforce the
-repository's safety contract: Pine v6, confirmed-bar execution, confirmed
-higher-timeframe data, prior-bar breakout windows, explicit risk limits, and no
-strategy `alertcondition()` calls.
+The local checks are not a Pine compiler. They enforce reviewed invariants such
+as Pine v6, confirmed-bar decisions, confirmed higher-timeframe data, realistic
+next-tick execution, explicit costs, disabled pyramiding, and hard risk limits.
 
-## Roadmap
+## Promotion path
 
-The next reviewable increments are a locked backtest-report template, broker
-webhook schema with signature verification, paper-trading reconciliation, and
-deployment monitoring. Live execution stays out of scope until all promotion
-gates pass.
+Pine compilation -> historical walk-forward tests -> untouched holdout -> cost
+stress -> paper alerts -> operational reconciliation. Live execution remains out
+of scope until every gate passes.

@@ -1,0 +1,353 @@
+//@version=6
+//@strategy_alert_message {{strategy.order.alert_message}}
+strategy(
+     "Robust Crypto Cycle Pullback + Smart Hold v0.1",
+     overlay = true,
+     initial_capital = 10000,
+     currency = currency.USD,
+     pyramiding = 0,
+     commission_type = strategy.commission.percent,
+     commission_value = 0.1,
+     slippage = 1,
+     process_orders_on_close = false,
+     calc_on_every_tick = false,
+     calc_on_order_fills = false,
+     fill_orders_on_standard_ohlc = true,
+     margin_long = 100,
+     margin_short = 100
+)
+
+// Research baseline for liquid crypto markets. Signals use completed chart bars.
+// Weekly requests use the previous completed weekly bar with lookahead_on; the
+// offset/lookahead pair prevents historical bars from receiving future data.
+
+// ── Backtest and sizing ──────────────────────────────────────────────────────
+int backtestStart = input.time(timestamp("2018-01-01 00:00 +0000"), "Backtest start", group = "Backtest")
+float positionSizePercent = input.float(30.0, "Position size (% of equity)", minval = 1.0, maxval = 100.0, step = 1.0, group = "Backtest")
+int minimumBarsBetweenEntries = input.int(10, "Minimum bars between entries", minval = 0, maxval = 100, group = "Backtest")
+bool showDashboard = input.bool(true, "Show performance dashboard", group = "Backtest")
+
+// ── Market cycle and trend ──────────────────────────────────────────────────
+int cycleFastLength = input.int(20, "Weekly cycle fast EMA", minval = 5, maxval = 60, group = "Cycle and trend")
+int cycleSlowLength = input.int(40, "Weekly cycle slow EMA", minval = 10, maxval = 100, group = "Cycle and trend")
+int cycleSlopeWeeks = input.int(4, "Weekly slow-EMA slope lookback", minval = 1, maxval = 20, group = "Cycle and trend")
+bool requireFastCycleAlignment = input.bool(true, "Require weekly fast EMA above slow EMA", group = "Cycle and trend")
+int pullbackEmaLength = input.int(50, "Pullback EMA", minval = 10, maxval = 150, group = "Cycle and trend")
+int trendEmaLength = input.int(200, "Trend EMA", minval = 50, maxval = 400, group = "Cycle and trend")
+
+// ── Entry quality ───────────────────────────────────────────────────────────
+int pullbackLookback = input.int(12, "Pullback lookback", minval = 2, maxval = 50, group = "Entry quality")
+float pullbackToleranceAtr = input.float(0.50, "Pullback tolerance (ATR)", minval = 0.0, maxval = 3.0, step = 0.1, group = "Entry quality")
+int reclaimWindow = input.int(3, "Bars allowed after EMA reclaim", minval = 0, maxval = 10, group = "Entry quality")
+int cycleEntryWindow = input.int(10, "Bars allowed after bullish cycle turn", minval = 0, maxval = 30, group = "Entry quality")
+float maximumExtensionAtr = input.float(1.25, "Maximum entry extension (ATR)", minval = 0.25, maxval = 5.0, step = 0.25, group = "Entry quality")
+int rsiLength = input.int(14, "RSI length", minval = 5, maxval = 50, group = "Entry quality")
+float oversoldRsiThreshold = input.float(45.0, "Pullback RSI threshold", minval = 20.0, maxval = 55.0, step = 1.0, group = "Entry quality")
+float entryRsiFloor = input.float(50.0, "Entry RSI floor", minval = 35.0, maxval = 65.0, step = 1.0, group = "Entry quality")
+float entryRsiCeiling = input.float(68.0, "Entry RSI ceiling", minval = 50.0, maxval = 85.0, step = 1.0, group = "Entry quality")
+int macdFastLength = input.int(12, "MACD fast length", minval = 3, maxval = 50, group = "Entry quality")
+int macdSlowLength = input.int(26, "MACD slow length", minval = 5, maxval = 100, group = "Entry quality")
+int macdSignalLength = input.int(9, "MACD signal length", minval = 2, maxval = 50, group = "Entry quality")
+int diLength = input.int(14, "DI length", minval = 5, maxval = 50, group = "Entry quality")
+int adxSmoothing = input.int(14, "ADX smoothing", minval = 5, maxval = 50, group = "Entry quality")
+float entryAdxFloor = input.float(18.0, "Entry ADX floor", minval = 5.0, maxval = 50.0, step = 1.0, group = "Entry quality")
+int minimumMomentumConfirmations = input.int(2, "Required momentum confirmations", minval = 1, maxval = 3, group = "Entry quality")
+bool useVolumeFilter = input.bool(true, "Use volume filter", group = "Entry quality")
+int volumeLength = input.int(20, "Volume average length", minval = 5, maxval = 100, group = "Entry quality")
+float volumeMultiplier = input.float(0.90, "Minimum volume / average", minval = 0.25, maxval = 3.0, step = 0.05, group = "Entry quality")
+int atrLength = input.int(14, "ATR length", minval = 5, maxval = 100, group = "Entry quality")
+float minimumAtrPercent = input.float(1.0, "Minimum ATR (%)", minval = 0.0, maxval = 20.0, step = 0.25, group = "Entry quality")
+float maximumAtrPercent = input.float(12.0, "Maximum ATR (%)", minval = 1.0, maxval = 50.0, step = 0.5, group = "Entry quality")
+
+// ── Smart Hold and exits ────────────────────────────────────────────────────
+float stopLossPercent = input.float(12.0, "Maximum initial stop (%)", minval = 1.0, maxval = 40.0, step = 0.5, group = "Smart Hold and exits")
+float atrStopMultiplier = input.float(3.0, "Initial ATR stop multiplier", minval = 0.5, maxval = 10.0, step = 0.25, group = "Smart Hold and exits")
+float trailingActivationPercent = input.float(15.0, "Trailing activation profit (%)", minval = 1.0, maxval = 100.0, step = 1.0, group = "Smart Hold and exits")
+float trailingAtrMultiplier = input.float(4.0, "Trailing distance (ATR)", minval = 0.5, maxval = 12.0, step = 0.25, group = "Smart Hold and exits")
+float strongTrendTrailBoost = input.float(1.35, "Strong-trend trail width multiplier", minval = 1.0, maxval = 3.0, step = 0.05, group = "Smart Hold and exits")
+float breakEvenActivationPercent = input.float(10.0, "Break-even activation profit (%)", minval = 1.0, maxval = 100.0, step = 1.0, group = "Smart Hold and exits")
+float breakEvenBufferPercent = input.float(0.50, "Break-even profit buffer (%)", minval = 0.0, maxval = 10.0, step = 0.1, group = "Smart Hold and exits")
+bool usePartialExit = input.bool(true, "Use partial take-profit", group = "Smart Hold and exits")
+float takeProfitPercent = input.float(20.0, "Take-profit level (%)", minval = 2.0, maxval = 200.0, step = 1.0, group = "Smart Hold and exits")
+float partialExitPercent = input.float(25.0, "Partial exit size (%)", minval = 5.0, maxval = 75.0, step = 5.0, group = "Smart Hold and exits")
+bool useFullTakeProfit = input.bool(false, "Use take-profit for entire position when partial exit is off", group = "Smart Hold and exits")
+float smartHoldAdxFloor = input.float(22.0, "Smart Hold ADX floor", minval = 5.0, maxval = 60.0, step = 1.0, group = "Smart Hold and exits")
+float smartHoldRsiFloor = input.float(52.0, "Smart Hold RSI floor", minval = 35.0, maxval = 75.0, step = 1.0, group = "Smart Hold and exits")
+float exitRsiFloor = input.float(45.0, "Exit RSI deterioration level", minval = 20.0, maxval = 60.0, step = 1.0, group = "Smart Hold and exits")
+float exhaustionRsi = input.float(78.0, "Overbought exhaustion RSI", minval = 60.0, maxval = 95.0, step = 1.0, group = "Smart Hold and exits")
+int supportLookback = input.int(20, "Major support lookback", minval = 5, maxval = 100, group = "Smart Hold and exits")
+int maximumHoldingBars = input.int(365, "Maximum holding bars (0 disables)", minval = 0, maxval = 2000, group = "Smart Hold and exits")
+
+// ── Portfolio protection ────────────────────────────────────────────────────
+float maximumDrawdownPercent = input.float(20.0, "Maximum strategy drawdown (%)", minval = 5.0, maxval = 50.0, step = 1.0, group = "Portfolio protection")
+int maximumConsecutiveLosses = input.int(3, "Maximum consecutive losing positions", minval = 1, maxval = 10, group = "Portfolio protection")
+int lossStreakCooldownBars = input.int(30, "Loss-streak cooldown bars", minval = 1, maxval = 365, group = "Portfolio protection")
+
+strategy.risk.max_drawdown(maximumDrawdownPercent, strategy.percent_of_equity)
+
+// ── Confirmed higher-timeframe cycle data ───────────────────────────────────
+float confirmedWeeklyClose = request.security(
+     syminfo.tickerid,
+     "1W",
+     close[1],
+     lookahead = barmerge.lookahead_on
+)
+float confirmedWeeklyFastEma = request.security(
+     syminfo.tickerid,
+     "1W",
+     ta.ema(close, cycleFastLength)[1],
+     lookahead = barmerge.lookahead_on
+)
+float confirmedWeeklySlowEma = request.security(
+     syminfo.tickerid,
+     "1W",
+     ta.ema(close, cycleSlowLength)[1],
+     lookahead = barmerge.lookahead_on
+)
+float confirmedWeeklySlowEmaPast = request.security(
+     syminfo.tickerid,
+     "1W",
+     ta.ema(close, cycleSlowLength)[1 + cycleSlopeWeeks],
+     lookahead = barmerge.lookahead_on
+)
+
+// ── Chart-timeframe indicators ──────────────────────────────────────────────
+float pullbackEma = ta.ema(close, pullbackEmaLength)
+float trendEma = ta.ema(close, trendEmaLength)
+float currentAtr = ta.atr(atrLength)
+float atrPercent = close > 0.0 ? currentAtr / close * 100.0 : na
+float currentRsi = ta.rsi(close, rsiLength)
+float macdLine = ta.ema(close, macdFastLength) - ta.ema(close, macdSlowLength)
+float macdSignal = ta.ema(macdLine, macdSignalLength)
+float macdHistogram = macdLine - macdSignal
+[plusDi, minusDi, adxValue] = ta.dmi(diLength, adxSmoothing)
+float averageVolume = ta.sma(volume, volumeLength)
+float priorMajorSupport = ta.lowest(low, supportLookback)[1]
+
+bool cycleDataReady = not na(confirmedWeeklySlowEmaPast)
+bool cycleSlopePositive = confirmedWeeklySlowEma > confirmedWeeklySlowEmaPast
+bool cycleAlignment = not requireFastCycleAlignment or confirmedWeeklyFastEma > confirmedWeeklySlowEma
+bool bullishCycle = cycleDataReady and confirmedWeeklyClose > confirmedWeeklySlowEma and cycleSlopePositive and cycleAlignment
+bool bullishCycleTurn = bullishCycle and not bullishCycle[1]
+int barsSinceBullishCycleTurn = ta.barssince(bullishCycleTurn)
+bool recentBullishCycleTurn = not na(barsSinceBullishCycleTurn) and barsSinceBullishCycleTurn <= cycleEntryWindow
+bool bullishTrend = pullbackEma > trendEma and close > trendEma
+
+float pullbackThreshold = pullbackEma + currentAtr * pullbackToleranceAtr
+bool pullbackSeen = ta.lowest(low, pullbackLookback) <= pullbackThreshold
+bool reclaimedPullbackEma = ta.crossover(close, pullbackEma)
+int barsSinceReclaim = ta.barssince(reclaimedPullbackEma)
+bool recentReclaim = not na(barsSinceReclaim) and barsSinceReclaim <= reclaimWindow and close > pullbackEma
+bool oversoldRecently = ta.lowest(currentRsi, pullbackLookback) <= oversoldRsiThreshold
+bool reclaimedEntryRsi = ta.crossover(currentRsi, entryRsiFloor)
+int barsSinceRsiReclaim = ta.barssince(reclaimedEntryRsi)
+bool oversoldRecovery = oversoldRecently and not na(barsSinceRsiReclaim) and barsSinceRsiReclaim <= reclaimWindow
+bool qualityEntryTrigger = recentReclaim or oversoldRecovery or recentBullishCycleTurn
+bool entryNotExtended = close <= pullbackEma + currentAtr * maximumExtensionAtr
+
+bool rsiMomentum = currentRsi >= entryRsiFloor and currentRsi <= entryRsiCeiling and currentRsi > currentRsi[1]
+bool macdMomentum = macdHistogram > macdHistogram[1]
+bool directionalMomentum = plusDi > minusDi and adxValue >= entryAdxFloor
+int momentumScore = (rsiMomentum ? 1 : 0) + (macdMomentum ? 1 : 0) + (directionalMomentum ? 1 : 0)
+bool volumeConfirmed = not useVolumeFilter or (not na(averageVolume) and volume >= averageVolume * volumeMultiplier)
+bool volatilityConfirmed = not na(atrPercent) and atrPercent >= minimumAtrPercent and atrPercent <= maximumAtrPercent
+
+// ── Position-state and loss-streak controls ─────────────────────────────────
+var float activeStop = na
+var float pendingEntryStop = na
+var float highestSinceEntry = na
+var float netProfitAtEntry = na
+var int entryBarIndex = na
+var int lastExitBarIndex = na
+var int consecutiveLosses = 0
+var int lossCooldownUntil = na
+var int completedPositions = 0
+var int winningPositions = 0
+var float grossPositionProfit = 0.0
+var float grossPositionLoss = 0.0
+var bool partialTaken = false
+
+bool positionJustOpened = strategy.position_size > 0.0 and strategy.position_size[1] <= 0.0
+bool positionJustClosed = strategy.position_size == 0.0 and strategy.position_size[1] > 0.0
+
+if positionJustOpened
+    float entryPrice = strategy.position_avg_price
+    float percentStop = entryPrice * (1.0 - stopLossPercent / 100.0)
+    float atrStop = entryPrice - currentAtr * atrStopMultiplier
+    activeStop := math.max(math.max(percentStop, atrStop), nz(pendingEntryStop, atrStop))
+    strategy.cancel("Entry protection")
+    highestSinceEntry := high
+    netProfitAtEntry := strategy.netprofit
+    entryBarIndex := bar_index
+    partialTaken := false
+
+bool positionPartiallyReduced = strategy.position_size > 0.0 and strategy.position_size < strategy.position_size[1]
+if positionPartiallyReduced
+    partialTaken := true
+
+if positionJustClosed
+    float completedPositionProfit = strategy.netprofit - nz(netProfitAtEntry, strategy.netprofit)
+    completedPositions += 1
+    if completedPositionProfit < 0.0
+        grossPositionLoss += math.abs(completedPositionProfit)
+        consecutiveLosses += 1
+        if consecutiveLosses >= maximumConsecutiveLosses
+            lossCooldownUntil := bar_index + lossStreakCooldownBars
+            consecutiveLosses := 0
+    else
+        grossPositionProfit += completedPositionProfit
+        winningPositions += 1
+        consecutiveLosses := 0
+    lastExitBarIndex := bar_index
+    activeStop := na
+    pendingEntryStop := na
+    highestSinceEntry := na
+    netProfitAtEntry := na
+    entryBarIndex := na
+    partialTaken := false
+
+bool lossCooldownActive = not na(lossCooldownUntil) and bar_index <= lossCooldownUntil
+bool reentryDelayComplete = na(lastExitBarIndex) or bar_index - lastExitBarIndex >= minimumBarsBetweenEntries
+
+float pointValue = math.max(syminfo.pointvalue, 0.00000001)
+float minimumQuantity = math.max(syminfo.mincontract, 0.00000001)
+float positionNotional = math.max(strategy.equity, 0.0) * positionSizePercent / 100.0
+float rawQuantity = close > 0.0 ? positionNotional / (close * pointValue) : 0.0
+float orderQuantity = math.floor(rawQuantity / minimumQuantity) * minimumQuantity
+
+bool entryDataReady = not na(trendEma) and not na(currentAtr) and not na(adxValue) and orderQuantity >= minimumQuantity
+bool entryAllowed = time >= backtestStart and strategy.position_size == 0.0 and not lossCooldownActive and reentryDelayComplete
+bool longEntrySignal = barstate.isconfirmed and entryDataReady and entryAllowed and bullishCycle and bullishTrend and pullbackSeen and qualityEntryTrigger and entryNotExtended and momentumScore >= minimumMomentumConfirmations and volumeConfirmed and volatilityConfirmed
+
+orderMessage(string action, float quantity, float referencePrice) =>
+    "{\"version\":\"0.1\",\"strategy\":\"crypto_cycle_smart_hold\",\"ticker\":\"" + syminfo.tickerid +
+     "\",\"action\":\"" + action +
+     "\",\"quantity\":\"" + str.tostring(quantity) +
+     "\",\"reference_price\":\"" + str.tostring(referencePrice, format.mintick) +
+     "\",\"bar_time\":\"" + str.tostring(time) + "\"}"
+
+if longEntrySignal
+    float plannedPercentStop = close * (1.0 - stopLossPercent / 100.0)
+    float plannedAtrStop = close - currentAtr * atrStopMultiplier
+    float plannedStop = math.max(plannedPercentStop, plannedAtrStop)
+    pendingEntryStop := plannedStop
+    strategy.entry(
+         "Long",
+         strategy.long,
+         qty = orderQuantity,
+         alert_message = orderMessage("ENTER_LONG", orderQuantity, plannedStop)
+    )
+    strategy.exit(
+         "Entry protection",
+         from_entry = "Long",
+         stop = plannedStop,
+         alert_message = orderMessage("EXIT_ENTRY_STOP", orderQuantity, plannedStop)
+    )
+
+// ── Smart Hold, trailing protection, and exits ──────────────────────────────
+bool inLongPosition = strategy.position_size > 0.0
+float openProfitPercent = inLongPosition ? (close / strategy.position_avg_price - 1.0) * 100.0 : 0.0
+bool strongTrendStructure = inLongPosition and bullishCycle and close > pullbackEma and pullbackEma > trendEma and pullbackEma >= pullbackEma[1]
+bool strongMomentum = adxValue >= smartHoldAdxFloor and plusDi > minusDi and currentRsi >= smartHoldRsiFloor
+bool smartHoldActive = strongTrendStructure and strongMomentum and openProfitPercent > 0.0
+
+if inLongPosition
+    highestSinceEntry := math.max(nz(highestSinceEntry, high), high)
+
+    if openProfitPercent >= breakEvenActivationPercent
+        float breakEvenStop = strategy.position_avg_price * (1.0 + breakEvenBufferPercent / 100.0)
+        activeStop := math.max(nz(activeStop, breakEvenStop), breakEvenStop)
+
+    if openProfitPercent >= trailingActivationPercent
+        float effectiveTrailMultiplier = trailingAtrMultiplier * (smartHoldActive ? strongTrendTrailBoost : 1.0)
+        float trailingStop = highestSinceEntry - currentAtr * effectiveTrailMultiplier
+        activeStop := math.max(nz(activeStop, trailingStop), trailingStop)
+
+    float takeProfitPrice = strategy.position_avg_price * (1.0 + takeProfitPercent / 100.0)
+    if usePartialExit
+        if not partialTaken
+            strategy.exit(
+                 "Partial take-profit",
+                 from_entry = "Long",
+                 limit = takeProfitPrice,
+                 stop = activeStop,
+                 qty_percent = partialExitPercent,
+                 alert_message = orderMessage("EXIT_PARTIAL_OR_STOP", math.abs(strategy.position_size) * partialExitPercent / 100.0, takeProfitPrice)
+            )
+        strategy.exit(
+             "Smart Hold runner",
+             from_entry = "Long",
+             stop = activeStop,
+             qty_percent = partialTaken ? 100.0 : 100.0 - partialExitPercent,
+             alert_message = orderMessage("EXIT_RUNNER_STOP", math.abs(strategy.position_size), activeStop)
+        )
+    else
+        float fullTakeProfitPrice = useFullTakeProfit ? takeProfitPrice : na
+        strategy.exit(
+             "Protective exit",
+             from_entry = "Long",
+             limit = fullTakeProfitPrice,
+             stop = activeStop,
+             alert_message = orderMessage("EXIT_PROTECTIVE", math.abs(strategy.position_size), activeStop)
+        )
+
+bool trendDeterioration = close < pullbackEma and pullbackEma < pullbackEma[1]
+bool momentumDeterioration = currentRsi < exitRsiFloor and minusDi > plusDi
+bool cycleDeterioration = confirmedWeeklyClose < confirmedWeeklySlowEma
+bool overboughtExhaustion = currentRsi[1] >= exhaustionRsi and currentRsi < exhaustionRsi and close < close[1]
+int exitDeteriorationScore = (trendDeterioration ? 1 : 0) + (momentumDeterioration ? 1 : 0) + (cycleDeterioration ? 1 : 0) + (overboughtExhaustion ? 1 : 0)
+bool majorSupportBreakdown = inLongPosition and not na(priorMajorSupport) and close < priorMajorSupport
+int holdingBars = inLongPosition and not na(entryBarIndex) ? bar_index - entryBarIndex : 0
+bool maximumHoldingPeriodReached = inLongPosition and maximumHoldingBars > 0 and holdingBars >= maximumHoldingBars
+bool confirmedDeteriorationExit = inLongPosition and exitDeteriorationScore >= 2 and not smartHoldActive
+bool longMarketExitSignal = barstate.isconfirmed and (majorSupportBreakdown or maximumHoldingPeriodReached or confirmedDeteriorationExit)
+
+if longMarketExitSignal
+    string exitReason = majorSupportBreakdown ? "Major support breakdown" : maximumHoldingPeriodReached ? "Maximum holding period" : "Confirmed trend deterioration"
+    strategy.close(
+         "Long",
+         comment = exitReason,
+         alert_message = orderMessage("EXIT_LONG_MARKET", math.abs(strategy.position_size), close)
+    )
+
+// ── Visuals and compact diagnostics ─────────────────────────────────────────
+plot(pullbackEma, "Pullback EMA", color = color.aqua, linewidth = 2)
+plot(trendEma, "Trend EMA", color = color.orange, linewidth = 2)
+plot(confirmedWeeklySlowEma, "Confirmed weekly slow EMA", color = color.new(color.purple, 15), linewidth = 2, style = plot.style_stepline)
+plot(inLongPosition ? activeStop : na, "Active protective stop", color = color.red, linewidth = 2, style = plot.style_linebr)
+plotshape(longEntrySignal, title = "Buy signal", text = "BUY", location = location.belowbar, color = color.lime, style = shape.labelup, textcolor = color.black, size = size.tiny)
+plotshape(longMarketExitSignal, title = "Sell signal", text = "SELL", location = location.abovebar, color = color.red, style = shape.labeldown, textcolor = color.white, size = size.tiny)
+bgcolor(smartHoldActive ? color.new(color.green, 90) : bullishCycle ? color.new(color.teal, 94) : color.new(color.red, 96), title = "Cycle / Smart Hold state")
+
+float profitFactor = grossPositionLoss > 0.0 ? grossPositionProfit / grossPositionLoss : na
+float winRate = completedPositions > 0 ? winningPositions * 100.0 / completedPositions : na
+float profitToDrawdown = strategy.max_drawdown_percent > 0.0 ? strategy.netprofit_percent / strategy.max_drawdown_percent : na
+var table dashboard = table.new(position.top_right, 2, 8, border_width = 1)
+if showDashboard and barstate.islast
+    color headerColor = color.new(color.blue, 25)
+    table.cell(dashboard, 0, 0, "Metric", bgcolor = headerColor, text_color = color.white)
+    table.cell(dashboard, 1, 0, "Value", bgcolor = headerColor, text_color = color.white)
+    table.cell(dashboard, 0, 1, "Cycle")
+    table.cell(dashboard, 1, 1, bullishCycle ? "Bullish" : "Defensive", text_color = bullishCycle ? color.lime : color.orange)
+    table.cell(dashboard, 0, 2, "Smart Hold")
+    table.cell(dashboard, 1, 2, smartHoldActive ? "ACTIVE" : "Off", text_color = smartHoldActive ? color.lime : chart.fg_color)
+    table.cell(dashboard, 0, 3, "Net profit")
+    table.cell(dashboard, 1, 3, str.tostring(strategy.netprofit_percent, "#.##") + "%")
+    table.cell(dashboard, 0, 4, "Max drawdown")
+    table.cell(dashboard, 1, 4, str.tostring(strategy.max_drawdown_percent, "#.##") + "%")
+    table.cell(dashboard, 0, 5, "Profit factor")
+    table.cell(dashboard, 1, 5, str.tostring(profitFactor, "#.##"))
+    table.cell(dashboard, 0, 6, "Win rate / positions")
+    table.cell(dashboard, 1, 6, str.tostring(winRate, "#.##") + "% / " + str.tostring(completedPositions))
+    table.cell(dashboard, 0, 7, "Profit / drawdown")
+    table.cell(dashboard, 1, 7, str.tostring(profitToDrawdown, "#.##"))
+
+if barstate.islastconfirmedhistory and completedPositions < 2
+    label.new(
+         bar_index,
+         high,
+         "Fewer than 2 completed trades. Use a liquid crypto symbol with history from 2018 and review the filters.",
+         color = color.orange,
+         textcolor = color.black,
+         style = label.style_label_down
+    )
