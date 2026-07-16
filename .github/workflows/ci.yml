@@ -28,5 +28,8 @@ jobs:
       - name: Validate crypto strategy contract
         run: python scripts/validate_crypto_strategy.py strategies/crypto_cycle_smart_hold.pine
 
+      - name: Validate crypto regime strategy contract
+        run: python scripts/validate_crypto_regime_strategy.py strategies/crypto_regime_compounder.pine
+
       - name: Run regression tests
         run: python -m unittest discover -s tests -v

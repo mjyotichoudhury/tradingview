@@ -8,6 +8,29 @@ anti-repainting checks, risk controls, and evidence-based promotion gates.
 
 ## Strategies
 
+### Crypto Regime Compounder + Smart Hold
+
+`strategies/crypto_regime_compounder.pine` is the higher-compounding crypto
+challenger. It adds confirmed bull/bear regimes, optional perpetual shorts,
+stop-distance risk sizing, exposure caps, symmetric Smart Hold exits, and a
+minimum-history gate for new listings.
+
+| Control | Balanced default |
+| --- | ---: |
+| Primary chart timeframe | 1 day |
+| Backtest start | 1 January 2018 |
+| Commission / slippage | 0.1% / 1 tick |
+| Weekly / daily EMA structure | 10/30 weekly; 21/55/200 daily |
+| Risk / maximum exposure | 3% / 100% |
+| Initial stop | 2.8 ATR, bounded to 4–12% |
+| Break-even / trail activation | +8% / +12% |
+| Maximum strategy drawdown | 25% |
+
+The current Delta Exchange India snapshot includes 182 crypto perpetuals,
+including a separate probation tier for recent listings. See
+`docs/crypto_regime_compounder.md` for test evidence, risk profiles, the Delta
+universe, and promotion gates.
+
 ### Crypto Cycle Pullback + Smart Hold
 
 `strategies/crypto_cycle_smart_hold.pine` is a long-only crypto strategy built
@@ -55,6 +78,7 @@ hours. See `docs/validation.md` for its validation and promotion methodology.
 ```bash
 python scripts/validate_strategy.py strategies/gold_trend_breakout.pine
 python scripts/validate_crypto_strategy.py strategies/crypto_cycle_smart_hold.pine
+python scripts/validate_crypto_regime_strategy.py strategies/crypto_regime_compounder.pine
 python -m unittest discover -s tests -v
 ```
 
