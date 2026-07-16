@@ -85,7 +85,7 @@ bool canEnter = barstate.isconfirmed and dataReady and orderQuantity >= contract
 bool longSignal = canEnter and allowLong and close > priorBreakoutHigh and close > confirmedDailyEma
 bool shortSignal = canEnter and allowShort and close < priorBreakoutLow and close < confirmedDailyEma
 
-string orderMessage(string action, float quantity, float protectiveStop) =>
+orderMessage(string action, float quantity, float protectiveStop) =>
     "{\"version\":\"0.1\",\"ticker\":\"" + syminfo.tickerid +
      "\",\"action\":\"" + action +
      "\",\"quantity\":\"" + str.tostring(quantity) +

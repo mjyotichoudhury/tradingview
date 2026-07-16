@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+import re
 import sys
 
 
@@ -29,6 +30,10 @@ FORBIDDEN_SNIPPETS = {
     "tick recalculation can diverge from historical bars": "calc_on_every_tick = true",
 }
 
+TYPED_FUNCTION_RETURN = re.compile(
+    r"(?m)^\s*(?:bool|int|float|string|color)\s+[A-Za-z_]\w*\s*\([^\n]*\)\s*=>"
+)
+
 
 def validate(source: str) -> list[str]:
     """Return human-readable contract violations."""
@@ -39,6 +44,11 @@ def validate(source: str) -> list[str]:
     for description, snippet in FORBIDDEN_SNIPPETS.items():
         if snippet in source:
             failures.append(f"forbidden: {description} ({snippet!r})")
+
+    if TYPED_FUNCTION_RETURN.search(source):
+        failures.append(
+            "forbidden: Pine function headers cannot declare a return type before the function name"
+        )
 
     if source.count("strategy(") != 1:
         failures.append("expected exactly one strategy() declaration")

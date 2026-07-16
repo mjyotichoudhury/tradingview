@@ -31,6 +31,13 @@ class StrategyContractTests(unittest.TestCase):
         failures = validate(source)
         self.assertTrue(any("alertcondition" in failure for failure in failures))
 
+    def test_typed_function_return_is_rejected(self) -> None:
+        source = STRATEGY.read_text(encoding="utf-8").replace(
+            "orderMessage(string action", "string orderMessage(string action"
+        )
+        failures = validate(source)
+        self.assertTrue(any("return type" in failure for failure in failures))
+
 
 if __name__ == "__main__":
     unittest.main()
